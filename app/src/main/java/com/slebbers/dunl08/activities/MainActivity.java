@@ -3,10 +3,14 @@ package com.slebbers.dunl08.activities;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
+import android.nfc.tech.MifareUltralight;
 import android.nfc.tech.Ndef;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -19,6 +23,10 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.slebbers.dunl08.R;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -44,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             ndef.addDataType("text/plain");
         } catch (IntentFilter.MalformedMimeTypeException e) {
-            Log.d("mainactivity", e.toString());
+            Log.e("mainactivity", e.getMessage());
         }
 
         intents = new IntentFilter[] {ndef };
@@ -69,9 +77,24 @@ public class MainActivity extends AppCompatActivity {
         super.onNewIntent(intent);
         Tag scannedTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
 
-        // process
-        Toast.makeText(this, scannedTag.toString(), Toast.LENGTH_LONG).show();
 
+        // process
+      //  Toast.makeText(this, scannedTag.toString(), Toast.LENGTH_LONG).show();
+        Parcelable[] parcelables = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+        NdefMessage message = (NdefMessage) parcelables[0];
+        NdefRecord[] records = message.getRecords();
+
+        // for now, only read the first record
+        NdefRecord record = records[0];
+        try {
+            byte[] content = record.getPayload();
+            String encoding = ((content[0] & 128) == 0) ? "UTF-8" : "UTF-16";
+            int languages = content[0] & 0063;
+            String text = new String(content, languages + 1, content.length - languages - 1, encoding);
+            Toast.makeText(this, text, Toast.LENGTH_LONG).show();
+        } catch(UnsupportedEncodingException e) {
+            Log.e("mainacitivity", e.getMessage());
+        }
     }
 
     @Override
