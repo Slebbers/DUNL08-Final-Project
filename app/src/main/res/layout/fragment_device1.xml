@@ -3,14 +3,38 @@
     android:layout_width="match_parent" android:layout_height="match_parent">
 
 
-    <CheckBox
-        android:text="Inspection 3"
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/checkBox3"
-        android:layout_below="@+id/checkBox2"
-        android:layout_alignLeft="@+id/btnSubmit"
-        android:layout_alignStart="@+id/btnSubmit" />
+        android:id="@+id/tvEquipName"
+        android:textSize="18sp"
+        android:layout_alignBaseline="@+id/tvDeviceName"
+        android:layout_alignBottom="@+id/tvDeviceName"
+        android:layout_toRightOf="@+id/tvDeviceName"
+        android:layout_toEndOf="@+id/tvDeviceName"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp" />
+
+    <TextView
+        android:text="Equipment ID:"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:id="@+id/tvDeviceName"
+        android:textSize="18sp"
+        android:layout_alignParentTop="true"
+        android:layout_alignLeft="@+id/checkBox"
+        android:layout_alignStart="@+id/checkBox" />
+
+    <CheckBox
+        android:text="Inspection 1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/checkBox"
+        android:layout_marginTop="13dp"
+        android:layout_below="@+id/tvDeviceName"
+        android:layout_alignLeft="@+id/checkBox2"
+        android:layout_alignStart="@+id/checkBox2" />
 
     <CheckBox
         android:text="Inspection 2"
@@ -18,41 +42,51 @@
         android:layout_height="wrap_content"
         android:id="@+id/checkBox2"
         android:layout_below="@+id/checkBox"
-        android:layout_alignLeft="@+id/checkBox3"
-        android:layout_alignStart="@+id/checkBox3" />
+        android:layout_alignLeft="@+id/checkBox5"
+        android:layout_alignStart="@+id/checkBox5" />
 
     <CheckBox
-        android:text="Inspection 1"
+        android:text="Inspection 3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/checkBox"
-        android:layout_marginTop="20dp"
-        android:layout_below="@+id/tvDeviceName"
-        android:layout_alignLeft="@+id/checkBox2"
-        android:layout_alignStart="@+id/checkBox2" />
-
-    <TextView
-        android:text="Equipment 1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="17dp"
-        android:id="@+id/tvDeviceName"
-        android:textSize="18sp"
-        android:layout_alignParentTop="true"
-        android:layout_alignLeft="@+id/checkBox"
-        android:layout_alignStart="@+id/checkBox" />
+        android:id="@+id/checkBox5"
+        android:layout_below="@+id/checkBox2"
+        android:layout_alignLeft="@+id/btnSubmit"
+        android:layout_alignStart="@+id/btnSubmit" />
 
     <Button
-        android:text="Submit"
+        android:text="Save"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/btnSubmit"
-        android:layout_marginTop="18dp"
-        android:layout_marginLeft="19dp"
-        android:layout_marginStart="19dp"
-        android:layout_below="@+id/checkBox3"
+        android:layout_marginLeft="34dp"
+        android:layout_marginStart="34dp"
+        android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
+
+    <TextView
+        android:text="Status:"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView3"
+        android:textSize="18sp"
+        android:layout_below="@+id/checkBox5"
+        android:layout_alignLeft="@+id/checkBox5"
+        android:layout_alignStart="@+id/checkBox5"
+        android:layout_marginTop="16dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvStatus"
+        android:text="DO NOT USE"
+        android:textSize="18sp"
+        android:layout_toRightOf="@+id/textView3"
+        android:layout_marginLeft="14dp"
+        android:layout_marginStart="14dp"
+        android:layout_alignBottom="@+id/textView3"
+        android:textColor="@android:color/holo_red_dark" />
 
 
 </RelativeLayout>

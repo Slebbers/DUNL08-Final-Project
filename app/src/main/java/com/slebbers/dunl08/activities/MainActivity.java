@@ -3,12 +3,14 @@ package com.slebbers.dunl08.activities;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.tech.Ndef;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.os.Vibrator;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -16,11 +18,13 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.slebbers.dunl08.R;
 import com.slebbers.dunl08.fragments.FragmentDevice1;
 import com.slebbers.dunl08.fragments.FragmentDevice2;
 import com.slebbers.dunl08.fragments.FragmentDevice3;
+import com.slebbers.dunl08.presenters.PresenterMain;
 
 import java.io.UnsupportedEncodingException;
 
@@ -32,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
     private String[][] technologies;
     private FragmentManager fragmentManager;
     private FragmentTransaction fragmentTransaction;
+    private Vibrator v;
+    private PresenterMain mainPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
+        v = (Vibrator) getSystemService(this.VIBRATOR_SERVICE);
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         fragmentManager = getSupportFragmentManager();
         /* This allows this activity to recieve nfc intents (which would otherwise launch
@@ -86,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
             String encoding = ((content[0] & 128) == 0) ? "UTF-8" : "UTF-16";
             int languages = content[0] & 0063;
             String text = new String(content, languages + 1, content.length - languages - 1, encoding);
-            //Toast.makeText(this, text, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Tag scanned, ID = " + text, Toast.LENGTH_LONG).show();
 
             fragmentTransaction = fragmentManager.beginTransaction();
             Log.d("mainactivity", text);
@@ -106,10 +113,10 @@ public class MainActivity extends AppCompatActivity {
 
                 default: break;
             }
-
+            v.vibrate(200);
             fragmentTransaction.commit();
         } catch(UnsupportedEncodingException e) {
-            Log.e("mainacitivity", e.getMessage());
+            Log.e("MainActivity", e.getMessage());
         }
     }
 
@@ -130,7 +137,13 @@ public class MainActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.action_clear) {
+            getSharedPreferences("device1",0).edit().clear().commit();
+            getSharedPreferences("device2",0).edit().clear().commit();
+            getSharedPreferences("device3",0).edit().clear().commit();
         }
+
+
 
         return super.onOptionsItemSelected(item);
     }

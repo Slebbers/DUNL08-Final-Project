@@ -7,4 +7,9 @@
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_clear"
+        android:orderInCategory="200"
+        android:title="Clear Prefs"
+        app:showAsAction="never" />
 </menu>
