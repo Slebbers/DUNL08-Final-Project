@@ -33,7 +33,7 @@ public class FragmentDevice2 extends Fragment {
         final View device2 = inflater.inflate(R.layout.fragment_device2, container, false);
         final Button submit = (Button) device2.findViewById(R.id.btnSubmit);
         final TextView tvEquipmentName = (TextView) device2.findViewById(R.id.tvEquipName);
-        final TextView tvStatus = (TextView) device2.findViewById((R.id.tvStatus));
+        final TextView tvStatus = (TextView) device2.findViewById((R.id.tv));
         final CheckBox checkBox = (CheckBox) device2.findViewById(R.id.checkBox);
         final CheckBox checkBox2 = (CheckBox) device2.findViewById(R.id.checkBox2);
         final CheckBox checkBox3 = (CheckBox) device2.findViewById(R.id.checkBox5);

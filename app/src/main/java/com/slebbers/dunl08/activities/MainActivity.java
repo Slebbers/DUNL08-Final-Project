@@ -18,9 +18,12 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.slebbers.dunl08.R;
+import com.slebbers.dunl08.fragments.FragmentChecklistView;
 import com.slebbers.dunl08.fragments.FragmentDevice1;
 import com.slebbers.dunl08.fragments.FragmentDevice2;
 import com.slebbers.dunl08.fragments.FragmentDevice3;
@@ -35,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements MainView {
     private PresenterMain mainPresenter;
     private FragmentTransaction fragmentTransaction;
     private FragmentManager fragmentManager;
+
+    private TextView tvScanTag;
 
     // NFC
     private NfcAdapter nfcAdapter;
@@ -64,7 +69,6 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
         intents = new IntentFilter[]{ ndef };
         technologies = new String[][]{ new String[] { Ndef.class.getName() } };
-
 
 
         mainPresenter.onCreate();
@@ -121,6 +125,9 @@ public class MainActivity extends AppCompatActivity implements MainView {
         super.onNewIntent(intent);
         mainPresenter.onTagScanned(intent);
 
+        // TODO: fix this not being removed by the fragment replace.
+        tvScanTag = (TextView) findViewById(R.id.tvScanTag);
+        tvScanTag.setVisibility(View.GONE);
 
         Parcelable[] parcelables = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
         NdefMessage message = (NdefMessage) parcelables[0];
@@ -138,22 +145,15 @@ public class MainActivity extends AppCompatActivity implements MainView {
             fragmentTransaction = fragmentManager.beginTransaction();
             Log.d("mainactivity", text);
 
-            // Simulating each tag being a new device with a unique checklist,
-            // so display a new fragment per tag.
-            switch (text) {
-                case "device1":
-                    fragmentTransaction.replace(R.id.content_main, new FragmentDevice1());
-                    break;
-                case "device2":
-                    fragmentTransaction.replace(R.id.content_main, new FragmentDevice2());
-                    break;
-                case "device3":
-                    fragmentTransaction.replace(R.id.content_main, new FragmentDevice3());
-                    break;
+            Bundle bundle = new Bundle();
+            bundle.putString("MainActivity", text);
 
-                default:
-                    break;
-            }
+            // TODO: Don't recreate this fragment every time
+            FragmentChecklistView fragmentChecklistView = new FragmentChecklistView();
+            fragmentChecklistView.setArguments(bundle);
+
+            fragmentTransaction.replace(R.id.content_main, fragmentChecklistView);
+
             fragmentTransaction.commit();
         } catch (UnsupportedEncodingException e) {
             Log.e("MainActivity", e.getMessage());
@@ -161,12 +161,12 @@ public class MainActivity extends AppCompatActivity implements MainView {
     }
 
 
-    @Override
-    public void clearPrefs() {
-        // TODO: remove sharedprefs when database is active
-        getSharedPreferences("device1", 0).edit().clear().apply();
-        getSharedPreferences("device2", 0).edit().clear().apply();
-        getSharedPreferences("device3", 0).edit().clear().apply();
-        Toast.makeText(this, "Prefs cleared!", Toast.LENGTH_LONG).show();
-    }
+//    @Override
+//    public void clearPrefs() {
+//        // TODO: remove sharedprefs when database is active
+//        getSharedPreferences("device1", 0).edit().clear().apply();
+//        getSharedPreferences("device2", 0).edit().clear().apply();
+//        getSharedPreferences("device3", 0).edit().clear().apply();
+//        Toast.makeText(this, "Prefs cleared!", Toast.LENGTH_LONG).show();
+//    }
 }

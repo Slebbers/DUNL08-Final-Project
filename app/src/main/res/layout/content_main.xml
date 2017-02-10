@@ -14,4 +14,16 @@
     tools:showIn="@layout/activity_main">
 
 
+    <TextView
+        android:text="Please scan a tag."
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="100dp"
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="88dp"
+        android:id="@+id/tvScanTag"
+        android:textSize="18sp" />
 </RelativeLayout>

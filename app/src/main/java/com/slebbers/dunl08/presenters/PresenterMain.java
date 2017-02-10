@@ -82,7 +82,7 @@ public class PresenterMain implements Presenter {
             case R.id.action_settings:
                 break;
             case R.id.action_clear:
-                view.clearPrefs();
+            //    view.clearPrefs();
                 break;
             default:
                 break;

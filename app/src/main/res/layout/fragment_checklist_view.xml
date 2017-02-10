@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+
+    <TextView
+        android:text="Equipment ID:"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:id="@+id/tvEquipment"
+        android:textSize="18sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/tvEquipment"
+        android:layout_toRightOf="@+id/tvEquipment"
+        android:layout_toEndOf="@+id/tvEquipment"
+        android:layout_marginLeft="19dp"
+        android:layout_marginStart="19dp"
+        android:id="@+id/tvEquipmentID"
+        android:textSize="18sp" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_below="@+id/tvEquipment"
+        android:layout_alignLeft="@+id/tvEquipment"
+        android:layout_alignStart="@+id/tvEquipment"
+        android:layout_marginTop="18dp"
+        android:id="@+id/flChecklist"
+        android:layout_marginRight="35sp"
+        android:layout_height="300sp">
+
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/rvChecklist" />
+    </FrameLayout>
+
+    <TextView
+        android:text="Last Inspection:"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/flChecklist"
+        android:layout_alignLeft="@+id/flChecklist"
+        android:layout_alignStart="@+id/flChecklist"
+        android:layout_marginTop="36dp"
+        android:id="@+id/textView2"
+        android:textSize="18sp" />
+
+    <TextView
+        android:text="Next Inspection:"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView7"
+        android:textSize="18sp"
+        android:layout_marginTop="8dp"
+        android:layout_below="@+id/textView2"
+        android:layout_alignLeft="@+id/textView2"
+        android:layout_alignStart="@+id/textView2" />
+
+    <TextView
+        android:text="Status:"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvStatus"
+        android:textSize="18sp"
+        android:layout_below="@+id/tvNextInspection"
+        android:layout_alignLeft="@+id/tvNextInspection"
+        android:layout_alignStart="@+id/tvNextInspection"
+        android:layout_marginTop="9dp" />
+
+    <TextView
+        android:text="Status:"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv"
+        android:textSize="18sp"
+        android:layout_alignBaseline="@+id/tvStatus"
+        android:layout_alignBottom="@+id/tvStatus"
+        android:layout_alignRight="@+id/textView2"
+        android:layout_alignEnd="@+id/textView2" />
+
+    <Button
+        android:text="Submit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:id="@+id/tvSubmit"
+        android:layout_below="@+id/tv"
+        android:layout_alignLeft="@+id/textView7"
+        android:layout_alignStart="@+id/textView7" />
+
+    <TextView
+        android:text="Last Inspection:"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvLastInspection"
+        android:textSize="18sp"
+        android:layout_alignBaseline="@+id/textView2"
+        android:layout_alignBottom="@+id/textView2"
+        android:layout_toRightOf="@+id/tvEquipmentID"
+        android:layout_toEndOf="@+id/tvEquipmentID"
+        android:layout_marginLeft="6dp"
+        android:layout_marginStart="6dp" />
+
+    <TextView
+        android:text="Next Inspection:"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvNextInspection"
+        android:textSize="18sp"
+        android:layout_alignBaseline="@+id/textView7"
+        android:layout_alignBottom="@+id/textView7"
+        android:layout_alignLeft="@+id/tvLastInspection"
+        android:layout_alignStart="@+id/tvLastInspection" />
+
+</RelativeLayout>

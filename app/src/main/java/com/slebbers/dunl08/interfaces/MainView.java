@@ -10,5 +10,5 @@ import android.view.View;
 public interface MainView  {
     void showChecklist();
     void disableButtons();
-    void clearPrefs();
+  //  void clearPrefs();
 }
