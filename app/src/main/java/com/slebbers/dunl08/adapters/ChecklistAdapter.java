@@ -9,6 +9,7 @@ import android.widget.CheckBox;
 
 import com.slebbers.dunl08.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ChecklistAdapter extends RecyclerView.Adapter<ChecklistAdapter.ViewHolder> {
@@ -23,7 +24,7 @@ public class ChecklistAdapter extends RecyclerView.Adapter<ChecklistAdapter.View
         public ViewHolder(View itemView) {
             super(itemView);
             checkbox = (CheckBox) itemView.findViewById(R.id.cbItem);
-            checkboxes.add(checkbox);
+            checkboxes = new ArrayList<>();
         }
 
     }
@@ -50,6 +51,7 @@ public class ChecklistAdapter extends RecyclerView.Adapter<ChecklistAdapter.View
             holder.checkbox.setChecked(true);
             holder.checkbox.setEnabled(false);
         }
+        checkboxes.add(holder.checkbox);
 
     }
 

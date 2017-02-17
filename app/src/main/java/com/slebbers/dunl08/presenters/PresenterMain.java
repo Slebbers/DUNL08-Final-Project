@@ -258,7 +258,7 @@ public class PresenterMain implements Presenter {
         c.add(Calendar.MONTH, 1);
         date = c.getTime();
         values.put(COLUMN_NEXT_INSPECTION, dateFormat.format(date));
-        values.put(COLUMN_PASS_FAIL, "Fail");
+        values.put(COLUMN_PASS_FAIL, "Do Not Use");
 
         db.insert(ChecklistDataContract.EquipmentEntry.TABLE_NAME, null, values);
 

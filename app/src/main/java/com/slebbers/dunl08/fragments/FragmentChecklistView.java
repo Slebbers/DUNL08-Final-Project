@@ -23,7 +23,11 @@ import com.slebbers.dunl08.adapters.ChecklistAdapter;
 import com.slebbers.dunl08.database.ChecklistDataContract;
 import com.slebbers.dunl08.database.ChecklistDataDbHelper;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -70,6 +74,7 @@ public class FragmentChecklistView extends Fragment {
             @Override
             public void onClick(View view) {
                 reinspect();
+                btnSubmit.setEnabled(true);
             }
         });
 
@@ -88,8 +93,50 @@ public class FragmentChecklistView extends Fragment {
 
                 }
 
-                // TODO: submit values
+                String query = "UPDATE ChecklistItem SET IsChecked = ";
+                int checkedCount = 0;
+                Cursor cursor;
 
+                for(int i = 0; i < checkboxes.size(); i++) {
+                    String actualQuery = query + isChecked.get(i).toString() + " WHERE ChecklistID = " + equipmentID;
+                    cursor = db.rawQuery(actualQuery, null);
+                    cursor.moveToFirst();
+                    cursor.close();
+                    checkedCount++;
+                }
+
+
+                DateFormat dateFormat = SimpleDateFormat.getDateInstance();
+                Calendar c = Calendar.getInstance();
+                Date date = new Date();
+                c.setTime(date);
+
+                String query2 = "UPDATE Equipment SET LastInspection = "  +  "'" + dateFormat.format(date) +  "'" + " WHERE EquipmentID = " + equipmentID;
+                cursor = db.rawQuery(query2, null);
+                cursor.moveToFirst();
+                cursor.close();
+
+                c.add(Calendar.MONTH, 1);
+                date = c.getTime();
+
+                String query3 = "UPDATE Equipment SET NextInspection = " +  "'" + dateFormat.format(date) + "'" + " WHERE EquipmentID = " + equipmentID;
+                cursor = db.rawQuery(query3, null);
+                cursor.moveToFirst();
+                cursor.close();
+
+                String query4 = "UPDATE Equipment SET Status = ";
+
+                if(checkedCount == checkboxes.size()) {
+                    query4 += "'Good To Go'";
+
+                } else {
+                    query4 += "'Do Not Use'";
+                }
+
+                query4 += " WHERE EquipmentID = " + equipmentID;
+                cursor = db.rawQuery(query4, null);
+                cursor.moveToFirst();
+                cursor.close();
 
             }
         });
