@@ -33,7 +33,7 @@ import com.slebbers.dunl08.presenters.PresenterMain;
 
 import java.io.UnsupportedEncodingException;
 
-public class MainActivity extends AppCompatActivity implements MainView, NavigationView.OnNavigationItemSelectedListener  {
+public class MainActivity extends AppCompatActivity implements MainView, NavigationView.OnNavigationItemSelectedListener {
 
     private PresenterMain mainPresenter;
     private FragmentTransaction fragmentTransaction;
@@ -83,8 +83,8 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
             Log.e("MainActivity", e.getMessage());
         }
 
-        intents = new IntentFilter[]{ ndef };
-        technologies = new String[][]{ new String[] { Ndef.class.getName() } };
+        intents = new IntentFilter[]{ndef};
+        technologies = new String[][]{new String[]{Ndef.class.getName()}};
 
 
         mainPresenter.onCreate();
@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         super.onPause();
         mainPresenter.onPause();
 
-        if(nfcAdapter != null)
+        if (nfcAdapter != null)
             nfcAdapter.disableForegroundDispatch(this);
     }
 
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         super.onResume();
         mainPresenter.onResume();
 
-        if(nfcAdapter != null)
+        if (nfcAdapter != null)
             nfcAdapter.enableForegroundDispatch(this, pendingIntent, intents, technologies);
     }
 
@@ -178,8 +178,8 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
             // when the id is not in the database.
             dbAccessor.setReadMode();
 
-            if(dbAccessor.checkEquipmentExists(text)) {
-                if(fragmentChecklistView == null) {
+            if (dbAccessor.checkEquipmentExists(text)) {
+                if (fragmentChecklistView == null) {
                     fragmentTransaction = fragmentManager.beginTransaction();
                     fragmentChecklistView = new FragmentChecklistView();
                     fragmentChecklistView.setArguments(bundle);
@@ -198,7 +198,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
             }
 
 
-
         } catch (UnsupportedEncodingException e) {
             Log.e("MainActivity", e.getMessage());
         }
@@ -209,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
 
         int id = item.getItemId();
 
-        if(id == R.id.nav_write_tag) {
+        if (id == R.id.nav_write_tag) {
             // otherwise the main activity will open when we attempt to write to the tag
             nfcAdapter.disableForegroundDispatch(this);
             Intent intent = new Intent(this, WriteTagActivity.class);
@@ -220,13 +219,4 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
-    //    @Override
-//    public void clearPrefs() {
-//        // TODO: remove sharedprefs when database is active
-//        getSharedPreferences("device1", 0).edit().clear().apply();
-//        getSharedPreferences("device2", 0).edit().clear().apply();
-//        getSharedPreferences("device3", 0).edit().clear().apply();
-//        Toast.makeText(this, "Prefs cleared!", Toast.LENGTH_LONG).show();
-//    }
 }

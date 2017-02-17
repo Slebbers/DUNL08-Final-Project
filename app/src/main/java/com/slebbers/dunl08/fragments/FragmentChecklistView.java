@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.slebbers.dunl08.R;
@@ -138,8 +139,11 @@ public class FragmentChecklistView extends Fragment {
                 cursor.moveToFirst();
                 cursor.close();
 
+                Toast.makeText(getContext(), "Data saved, rescan tag to verify!", Toast.LENGTH_LONG).show();
+
             }
         });
+        getDataFromDatabase();
     }
 
     private void reinspect() {
