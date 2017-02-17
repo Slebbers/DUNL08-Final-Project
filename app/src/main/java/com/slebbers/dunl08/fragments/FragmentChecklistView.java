@@ -70,6 +70,7 @@ public class FragmentChecklistView extends Fragment {
         super.onStart();
         tvEquipmentID.setText(equipmentID);
         db = dbHelper.getReadableDatabase();
+        getDataFromDatabase();
 
         btnReinspect.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,11 +100,14 @@ public class FragmentChecklistView extends Fragment {
                 Cursor cursor;
 
                 for(int i = 0; i < checkboxes.size(); i++) {
-                    String actualQuery = query + isChecked.get(i).toString() + " WHERE ChecklistID = " + equipmentID;
+                    String actualQuery = query + isChecked.get(i).toString() + " WHERE ChecklistID = " + equipmentID + " AND ChecklistItem = " + "'" + checkboxes.get(i).getText().toString() + "'" ;
                     cursor = db.rawQuery(actualQuery, null);
                     cursor.moveToFirst();
                     cursor.close();
-                    checkedCount++;
+                   // checkedCount++;
+                    if(checkboxes.get(i).isChecked()) {
+                        checkedCount++;
+                    }
                 }
 
 
@@ -127,6 +131,7 @@ public class FragmentChecklistView extends Fragment {
 
                 String query4 = "UPDATE Equipment SET Status = ";
 
+
                 if(checkedCount == checkboxes.size()) {
                     query4 += "'Good To Go'";
 
@@ -143,7 +148,7 @@ public class FragmentChecklistView extends Fragment {
 
             }
         });
-        getDataFromDatabase();
+
     }
 
     private void reinspect() {
@@ -161,12 +166,16 @@ public class FragmentChecklistView extends Fragment {
         cursor.close();
 
         Log.d("ChecklistView", "reinspecting");
-        reloadContents(equipmentID);
+        adapter.clearCheckboxes();
+        getDataFromDatabase();
     }
 
     private void getDataFromDatabase() {
         String query = "SELECT ChecklistItem, IsChecked FROM ChecklistItem WHERE ChecklistID = (SELECT ChecklistID FROM Equipment WHERE EquipmentID = " + equipmentID + ")";
         Cursor cursor = db.rawQuery(query, null);
+
+        HashMap<String, Integer> checklistItems = new HashMap<>();
+
         List<String> items = new ArrayList<>();
         List<Integer> checkStatus = new ArrayList<>();
 
@@ -175,7 +184,8 @@ public class FragmentChecklistView extends Fragment {
             int isChecked = cursor.getInt(cursor.getColumnIndex(ChecklistDataContract.ChecklistItemEntry.COLUMN_ISCHECKED));
             //Log.d("ChecklistView", item);
             items.add(item);
-            checkStatus.add(isChecked);
+            //checkStatus.add(isChecked);
+            checklistItems.put(item, isChecked);
         }
 
 
@@ -183,10 +193,6 @@ public class FragmentChecklistView extends Fragment {
         cursor.close();
 
 
-
-//        for(String s : items) {
-//            Log.d("ChecklistView", s);
-//        }
 
         // EquipmentID will not always equal ChecklistID, testing for now.
         String lastInspectionQuery = "SELECT LastInspection FROM Equipment WHERE ChecklistID = " + equipmentID;
@@ -229,9 +235,10 @@ public class FragmentChecklistView extends Fragment {
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         rvChecklist.setLayoutManager(layoutManager);
-        adapter = new ChecklistAdapter(items);
-        adapter.setChecked(checkStatus);
+        adapter = new ChecklistAdapter(checklistItems, items);
+       // adapter.setChecked(checkStatus);
         rvChecklist.setAdapter(adapter);
+
 
         if(tvStatus.getText().equals("Good To Go")) {
             btnSubmit.setEnabled(false);
@@ -239,9 +246,6 @@ public class FragmentChecklistView extends Fragment {
 
     }
 
-    private void setupViewContents() {
-
-    }
 
     public void reloadContents(String equipmentID) {
         this.equipmentID = equipmentID;
