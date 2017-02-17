@@ -19,6 +19,7 @@ import com.slebbers.dunl08.interfaces.Presenter;
 import com.slebbers.dunl08.nfc.NFCHelper;
 
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -30,6 +31,7 @@ import static com.slebbers.dunl08.database.ChecklistDataContract.ChecklistItemEn
 import static com.slebbers.dunl08.database.ChecklistDataContract.ChecklistItemEntry.COLUMN_CHECKLIST_ID_FK;
 import static com.slebbers.dunl08.database.ChecklistDataContract.ChecklistItemEntry.COLUMN_ISCHECKED;
 import static com.slebbers.dunl08.database.ChecklistDataContract.EquipmentEntry.COLUMN_EQUIPMENT_ID_PK;
+import static com.slebbers.dunl08.database.ChecklistDataContract.EquipmentEntry.COLUMN_EQUIPMENT_TYPE;
 import static com.slebbers.dunl08.database.ChecklistDataContract.EquipmentEntry.COLUMN_LAST_INSPECTION;
 import static com.slebbers.dunl08.database.ChecklistDataContract.EquipmentEntry.COLUMN_NEXT_INSPECTION;
 import static com.slebbers.dunl08.database.ChecklistDataContract.EquipmentEntry.COLUMN_PASS_FAIL;
@@ -119,7 +121,6 @@ public class PresenterMain implements Presenter {
     private void writeStuffToDB() {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
-
         /*
             CHECKLIST
          */
@@ -150,28 +151,28 @@ public class PresenterMain implements Presenter {
         values.put(COLUMN_CHECKLISTITEM_ID_PK, 1);
         values.put(COLUMN_CHECKLIST_ID_FK, 1);
         values.put(COLUMN_CHECKLISTITEM, "Equipment turns on");
-        values.put(COLUMN_ISCHECKED, 0);
+        values.put(COLUMN_ISCHECKED, 1);
         db.insert(ChecklistDataContract.ChecklistItemEntry.TABLE_NAME, null, values);
         values.clear();
 
         values.put(COLUMN_CHECKLISTITEM_ID_PK, 2);
         values.put(COLUMN_CHECKLIST_ID_FK, 1);
         values.put(COLUMN_CHECKLISTITEM, "Cable not damaged");
-        values.put(COLUMN_ISCHECKED, 0);
+        values.put(COLUMN_ISCHECKED, 1);
         db.insert(ChecklistDataContract.ChecklistItemEntry.TABLE_NAME, null, values);
         values.clear();
 
         values.put(COLUMN_CHECKLISTITEM_ID_PK, 3);
         values.put(COLUMN_CHECKLIST_ID_FK, 2);
         values.put(COLUMN_CHECKLISTITEM, "Cable secured to floor");
-        values.put(COLUMN_ISCHECKED, 0);
+        values.put(COLUMN_ISCHECKED, 1);
         db.insert(ChecklistDataContract.ChecklistItemEntry.TABLE_NAME, null, values);
         values.clear();
 
         values.put(COLUMN_CHECKLISTITEM_ID_PK, 4);
         values.put(COLUMN_CHECKLIST_ID_FK, 2);
         values.put(COLUMN_CHECKLISTITEM, "Operation manual available");
-        values.put(COLUMN_ISCHECKED, 0);
+        values.put(COLUMN_ISCHECKED, 1);
         db.insert(ChecklistDataContract.ChecklistItemEntry.TABLE_NAME, null, values);
         values.clear();
 
@@ -179,14 +180,14 @@ public class PresenterMain implements Presenter {
         values.put(COLUMN_CHECKLISTITEM_ID_PK, 5);
         values.put(COLUMN_CHECKLIST_ID_FK, 2);
         values.put(COLUMN_CHECKLISTITEM, "Lights operable");
-        values.put(COLUMN_ISCHECKED, 0);
+        values.put(COLUMN_ISCHECKED, 1);
         db.insert(ChecklistDataContract.ChecklistItemEntry.TABLE_NAME, null, values);
         values.clear();
 
         values.put(COLUMN_CHECKLISTITEM_ID_PK, 6);
         values.put(COLUMN_CHECKLIST_ID_FK, 3);
         values.put(COLUMN_CHECKLISTITEM, "Eyewear available");
-        values.put(COLUMN_ISCHECKED, 0);
+        values.put(COLUMN_ISCHECKED, 1);
         db.insert(ChecklistDataContract.ChecklistItemEntry.TABLE_NAME, null, values);
         values.clear();
 
@@ -214,44 +215,51 @@ public class PresenterMain implements Presenter {
         /*
             EQUIPMENT
          */
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        DateFormat dateFormat = SimpleDateFormat.getDateInstance();
         Calendar c = Calendar.getInstance();
         Date date = new Date();
         c.setTime(date);
 
         values.put(COLUMN_EQUIPMENT_ID_PK, 1);
+        values.put(COLUMN_EQUIPMENT_TYPE, "Forklift");
         values.put(COLUMN_CHECKLIST_ID_FK, 1);
         values.put(COLUMN_LAST_INSPECTION, dateFormat.format(date));
-        c.add(Calendar.DATE, 1);
+
+        c.add(Calendar.MONTH, 1);
         date = c.getTime();
+
         values.put(COLUMN_NEXT_INSPECTION, dateFormat.format(date));
-        values.put(COLUMN_PASS_FAIL, "Pass");
+        values.put(COLUMN_PASS_FAIL, "Good To Go");
         db.insert(ChecklistDataContract.EquipmentEntry.TABLE_NAME, null, values);
 
         // back to today
-        c.add(Calendar.DATE, -1);
+        c.add(Calendar.MONTH, -1);
+        date = c.getTime();
 
         values.put(COLUMN_EQUIPMENT_ID_PK, 2);
+        values.put(COLUMN_EQUIPMENT_TYPE, "Harness");
         values.put(COLUMN_CHECKLIST_ID_FK, 2);
-        c.add(Calendar.MONTH, -2);
-        date = c.getTime();
         values.put(COLUMN_LAST_INSPECTION, dateFormat.format(date));
-        c.add(Calendar.DATE, 1);
+        c.add(Calendar.MONTH, 1);
         date = c.getTime();
         values.put(COLUMN_NEXT_INSPECTION, dateFormat.format(date));
-        values.put(COLUMN_PASS_FAIL, "Pass");
+        values.put(COLUMN_PASS_FAIL, "Good To Go");
+
         db.insert(ChecklistDataContract.EquipmentEntry.TABLE_NAME, null, values);
 
-        date = new Date();
+        // back to today
+        c.add(Calendar.MONTH, -1);
+        date = c.getTime();
 
-        c.add(Calendar.MONTH, -6);
         values.put(COLUMN_EQUIPMENT_ID_PK, 3);
+        values.put(COLUMN_EQUIPMENT_TYPE, "Excavator");
         values.put(COLUMN_CHECKLIST_ID_FK, 3);
         values.put(COLUMN_LAST_INSPECTION, dateFormat.format(date));
-        c.add(Calendar.DATE, 1);
+        c.add(Calendar.MONTH, 1);
         date = c.getTime();
         values.put(COLUMN_NEXT_INSPECTION, dateFormat.format(date));
         values.put(COLUMN_PASS_FAIL, "Fail");
+
         db.insert(ChecklistDataContract.EquipmentEntry.TABLE_NAME, null, values);
 
         Log.d("PresenterMain", "data inserted");

@@ -45,6 +45,7 @@ public class ChecklistDataDbHelper extends SQLiteOpenHelper {
     public static final String SQL_CREATE_TABLE_EQUIPMENT =
             "CREATE TABLE " + EquipmentEntry.TABLE_NAME + " (" +
             EquipmentEntry.COLUMN_EQUIPMENT_ID_PK + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            EquipmentEntry.COLUMN_EQUIPMENT_TYPE + " TEXT, " +
             EquipmentEntry.COLUMN_LAST_INSPECTION + " TEXT, " +
             EquipmentEntry.COLUMN_NEXT_INSPECTION + " TEXT, " +
             EquipmentEntry.COLUMN_PASS_FAIL + " TEXT, " +
@@ -67,6 +68,6 @@ public class ChecklistDataDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-        onUpgrade(sqLiteDatabase, i, i1);
+        sqLiteDatabase.execSQL("ALTER TABLE EQUIPMENT ADD COLUMN EquipmentType");
     }
 }

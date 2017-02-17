@@ -24,6 +24,7 @@ public final class ChecklistDataContract {
     public static class EquipmentEntry implements BaseColumns {
         public static final String TABLE_NAME = "Equipment";
         public static final String COLUMN_EQUIPMENT_ID_PK = "EquipmentID";
+        public static final String COLUMN_EQUIPMENT_TYPE = "EquipmentType";
         public static final String COLUMN_CHECKLIST_ID_FK = "ChecklistID";
         public static final String COLUMN_LAST_INSPECTION = "LastInspection";
         public static final String COLUMN_NEXT_INSPECTION = "NextInspection";

@@ -1,18 +1,21 @@
 package com.slebbers.dunl08.activities;
 
-import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.sqlite.SQLiteDatabase;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.tech.Ndef;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -23,23 +26,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.slebbers.dunl08.R;
+import com.slebbers.dunl08.database.DatabaseAccessor;
 import com.slebbers.dunl08.fragments.FragmentChecklistView;
-import com.slebbers.dunl08.fragments.FragmentDevice1;
-import com.slebbers.dunl08.fragments.FragmentDevice2;
-import com.slebbers.dunl08.fragments.FragmentDevice3;
 import com.slebbers.dunl08.interfaces.MainView;
-import com.slebbers.dunl08.nfc.NFCHelper;
 import com.slebbers.dunl08.presenters.PresenterMain;
 
 import java.io.UnsupportedEncodingException;
 
-public class MainActivity extends AppCompatActivity implements MainView {
+public class MainActivity extends AppCompatActivity implements MainView, NavigationView.OnNavigationItemSelectedListener  {
 
     private PresenterMain mainPresenter;
     private FragmentTransaction fragmentTransaction;
     private FragmentManager fragmentManager;
-
+    private FragmentChecklistView fragmentChecklistView;
     private TextView tvScanTag;
+    private DatabaseAccessor dbAccessor;
 
     // NFC
     private NfcAdapter nfcAdapter;
@@ -52,6 +53,21 @@ public class MainActivity extends AppCompatActivity implements MainView {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        this.deleteDatabase("Checklist.db");
+        dbAccessor = new DatabaseAccessor(getApplicationContext());
 
         if (mainPresenter == null)
             mainPresenter = new PresenterMain(getApplicationContext(), this);
@@ -74,8 +90,17 @@ public class MainActivity extends AppCompatActivity implements MainView {
         mainPresenter.onCreate();
         fragmentManager = getSupportFragmentManager();
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 
 
@@ -126,6 +151,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
         mainPresenter.onTagScanned(intent);
 
         // TODO: fix this not being removed by the fragment replace.
+        // sorta fixed for now, some weird case were it stays visible
         tvScanTag = (TextView) findViewById(R.id.tvScanTag);
         tvScanTag.setVisibility(View.GONE);
 
@@ -140,28 +166,62 @@ public class MainActivity extends AppCompatActivity implements MainView {
             String encoding = ((content[0] & 128) == 0) ? "UTF-8" : "UTF-16";
             int languages = content[0] & 0063;
             String text = new String(content, languages + 1, content.length - languages - 1, encoding);
-            Toast.makeText(this, "Tag scanned, ID = " + text, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Tag scanned, ID = " + text, Toast.LENGTH_SHORT).show();
 
-            fragmentTransaction = fragmentManager.beginTransaction();
+
             Log.d("mainactivity", text);
 
             Bundle bundle = new Bundle();
             bundle.putString("MainActivity", text);
 
-            // TODO: Don't recreate this fragment every time
-            FragmentChecklistView fragmentChecklistView = new FragmentChecklistView();
-            fragmentChecklistView.setArguments(bundle);
+            // we need to make sure the scanned tag exists before building the fragment, to avoid crashes
+            // when the id is not in the database.
+            dbAccessor.setReadMode();
 
-            fragmentTransaction.replace(R.id.content_main, fragmentChecklistView);
+            if(dbAccessor.checkEquipmentExists(text)) {
+                if(fragmentChecklistView == null) {
+                    fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentChecklistView = new FragmentChecklistView();
+                    fragmentChecklistView.setArguments(bundle);
+                    fragmentTransaction.replace(R.id.content_main, fragmentChecklistView);
+                    fragmentTransaction.commit();
+                } else {
+                    //update contents rather than replace view
+                    fragmentChecklistView.reloadContents(text);
+                }
+            } else {
+                Toast.makeText(this, "Equipment not found in database!", Toast.LENGTH_LONG).show();
+                if (fragmentChecklistView == null) {
+                    tvScanTag.setVisibility(View.VISIBLE);
+                }
 
-            fragmentTransaction.commit();
+            }
+
+
+
         } catch (UnsupportedEncodingException e) {
             Log.e("MainActivity", e.getMessage());
         }
     }
 
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
-//    @Override
+        int id = item.getItemId();
+
+        if(id == R.id.nav_write_tag) {
+            // otherwise the main activity will open when we attempt to write to the tag
+            nfcAdapter.disableForegroundDispatch(this);
+            Intent intent = new Intent(this, WriteTagActivity.class);
+            startActivity(intent);
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    //    @Override
 //    public void clearPrefs() {
 //        // TODO: remove sharedprefs when database is active
 //        getSharedPreferences("device1", 0).edit().clear().apply();

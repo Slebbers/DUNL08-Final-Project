@@ -92,7 +92,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="25dp"
-        android:id="@+id/tvSubmit"
+        android:id="@+id/btnSubmit"
         android:layout_below="@+id/tv"
         android:layout_alignLeft="@+id/textView7"
         android:layout_alignStart="@+id/textView7" />
@@ -120,5 +120,14 @@
         android:layout_alignBottom="@+id/textView7"
         android:layout_alignLeft="@+id/tvLastInspection"
         android:layout_alignStart="@+id/tvLastInspection" />
+
+    <Button
+        android:text="Reinspect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/btnSubmit"
+        android:layout_alignLeft="@+id/tvStatus"
+        android:layout_alignStart="@+id/tvStatus"
+        android:id="@+id/btnReinspect" />
 
 </RelativeLayout>

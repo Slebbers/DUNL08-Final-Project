@@ -14,6 +14,8 @@ import java.util.List;
 public class ChecklistAdapter extends RecyclerView.Adapter<ChecklistAdapter.ViewHolder> {
 
     private List<String> items;
+    private List<Integer> checked;
+    private static List<CheckBox> checkboxes;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         CheckBox checkbox;
@@ -21,7 +23,9 @@ public class ChecklistAdapter extends RecyclerView.Adapter<ChecklistAdapter.View
         public ViewHolder(View itemView) {
             super(itemView);
             checkbox = (CheckBox) itemView.findViewById(R.id.cbItem);
+            checkboxes.add(checkbox);
         }
+
     }
 
     public ChecklistAdapter(List<String> items) {
@@ -42,5 +46,20 @@ public class ChecklistAdapter extends RecyclerView.Adapter<ChecklistAdapter.View
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.checkbox.setText(items.get(position));
+        if(checked.get(position) == 1) {
+            holder.checkbox.setChecked(true);
+            holder.checkbox.setEnabled(false);
+        }
+
     }
+
+    public void setChecked(List<Integer> checkedItems) {
+        checked = checkedItems;
+    }
+
+    public List<CheckBox> getCheckboxes() {
+        return checkboxes;
+    }
+
+
 }
