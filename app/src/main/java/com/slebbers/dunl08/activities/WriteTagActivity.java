@@ -26,6 +26,8 @@ public class WriteTagActivity extends AppCompatActivity {
     private PendingIntent pendingIntent;
     private String tagWriteableName;
     private AlertDialog writeTagDialog;
+    private NFCHelper nfcHelper;
+    private Button btnWrite;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,13 +37,12 @@ public class WriteTagActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        nfcHelper = new NFCHelper();
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
 
-
-        Button button = (Button) findViewById(R.id.btnWrite);
-
-        button.setOnClickListener(new View.OnClickListener() {
+        btnWrite = (Button) findViewById(R.id.btnWrite);
+        btnWrite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 EditText tagID = (EditText) findViewById(R.id.etTagName);
@@ -68,7 +69,6 @@ public class WriteTagActivity extends AppCompatActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-        NFCHelper nfcHelper = new NFCHelper();
         Log.d("WriteTagActivity", "writing tag ...");
         writeTagDialog.setMessage("Writing tag...");
         nfcHelper.writeTag(tag, tagWriteableName);
@@ -85,10 +85,7 @@ public class WriteTagActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-
         nfcAdapter.disableForegroundDispatch(this);
         super.onPause();
     }
-
-
 }

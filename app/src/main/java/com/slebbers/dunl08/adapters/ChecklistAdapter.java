@@ -15,7 +15,7 @@ import java.util.List;
 
 public class ChecklistAdapter extends RecyclerView.Adapter<ChecklistAdapter.ViewHolder> {
 
-   private List<String> items;
+    private List<String> items;
     private HashMap<String, Integer> checklistItems;
     private static List<CheckBox> checkboxes = new ArrayList<>();
 
@@ -62,10 +62,6 @@ public class ChecklistAdapter extends RecyclerView.Adapter<ChecklistAdapter.View
 
 
     }
-
-//    public void setChecked(List<Integer> checkedItems) {
-//        checked = checkedItems;
-//    }
 
     public List<CheckBox> getCheckboxes() {
        // return checkboxes;

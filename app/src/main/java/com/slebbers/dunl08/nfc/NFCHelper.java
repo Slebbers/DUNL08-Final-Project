@@ -75,10 +75,7 @@ public class NFCHelper {
             return new NdefMessage(new NdefRecord[] {record});
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
+            return null;
         }
-
-        return null;
     }
-
-
 }

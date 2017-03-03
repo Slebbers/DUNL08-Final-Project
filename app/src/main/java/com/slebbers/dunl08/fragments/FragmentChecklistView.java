@@ -1,8 +1,5 @@
 package com.slebbers.dunl08.fragments;
 
-
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -21,19 +18,17 @@ import android.widget.Toast;
 
 import com.slebbers.dunl08.R;
 import com.slebbers.dunl08.adapters.ChecklistAdapter;
-import com.slebbers.dunl08.database.ChecklistDataContract;
-import com.slebbers.dunl08.database.ChecklistDataDbHelper;
+import com.slebbers.dunl08.interfaces.ChecklistView;
+import com.slebbers.dunl08.presenters.PresenterChecklistView;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-
-public class FragmentChecklistView extends Fragment {
+public class FragmentChecklistView extends Fragment implements ChecklistView {
 
     private TextView tvEquipmentID;
     private TextView tvLastInspection;
@@ -42,12 +37,11 @@ public class FragmentChecklistView extends Fragment {
     private Button btnSubmit;
     private Button btnReinspect;
     private RecyclerView rvChecklist;
+    private RecyclerView.LayoutManager layoutManager;
+    private ChecklistAdapter checklistAdapter;
+    private PresenterChecklistView presenter;
 
-    private ChecklistDataDbHelper dbHelper;
-    private ChecklistAdapter adapter;
-    private SQLiteDatabase db;
-
-    String equipmentID;
+    private final String GOOD_TO_GO = "Good To Go";
 
     @Nullable
     @Override
@@ -60,22 +54,22 @@ public class FragmentChecklistView extends Fragment {
         btnSubmit = (Button) view.findViewById(R.id.btnSubmit);
         btnReinspect = (Button) view.findViewById(R.id.btnReinspect);
         rvChecklist = (RecyclerView) view.findViewById(R.id.rvChecklist);
-        dbHelper =  new ChecklistDataDbHelper(getContext());
-        equipmentID = getArguments().getString("MainActivity");
+        presenter = new PresenterChecklistView(getContext(), this);
+        presenter.setEquipmentID(getArguments().getString("MainActivity"));
         return view;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        tvEquipmentID.setText(equipmentID);
-        db = dbHelper.getReadableDatabase();
-        getDataFromDatabase();
+        presenter.onStart();
 
         btnReinspect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                reinspect();
+                presenter.btnReinspectClick();
+                checklistAdapter.clearCheckboxes();
+                presenter.onStart();
                 btnSubmit.setEnabled(true);
             }
         });
@@ -83,175 +77,67 @@ public class FragmentChecklistView extends Fragment {
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                List<CheckBox> checkboxes = adapter.getCheckboxes();
-                List<Integer> isChecked = new ArrayList<>();
-
-                for(CheckBox cb : checkboxes) {
-                    if(cb.isChecked()) {
-                        isChecked.add(1);
-                    } else {
-                        isChecked.add(0);
-                    }
-
-                }
-
-                String query = "UPDATE ChecklistItem SET IsChecked = ";
-                int checkedCount = 0;
-                Cursor cursor;
-
-                for(int i = 0; i < checkboxes.size(); i++) {
-                    String actualQuery = query + isChecked.get(i).toString() + " WHERE ChecklistID = " + equipmentID + " AND ChecklistItem = " + "'" + checkboxes.get(i).getText().toString() + "'" ;
-                    cursor = db.rawQuery(actualQuery, null);
-                    cursor.moveToFirst();
-                    cursor.close();
-                   // checkedCount++;
-                    if(checkboxes.get(i).isChecked()) {
-                        checkedCount++;
-                    }
-                }
-
-
-                DateFormat dateFormat = SimpleDateFormat.getDateInstance();
-                Calendar c = Calendar.getInstance();
-                Date date = new Date();
-                c.setTime(date);
-
-                String query2 = "UPDATE Equipment SET LastInspection = "  +  "'" + dateFormat.format(date) +  "'" + " WHERE EquipmentID = " + equipmentID;
-                cursor = db.rawQuery(query2, null);
-                cursor.moveToFirst();
-                cursor.close();
-
-                c.add(Calendar.MONTH, 1);
-                date = c.getTime();
-
-                String query3 = "UPDATE Equipment SET NextInspection = " +  "'" + dateFormat.format(date) + "'" + " WHERE EquipmentID = " + equipmentID;
-                cursor = db.rawQuery(query3, null);
-                cursor.moveToFirst();
-                cursor.close();
-
-                String query4 = "UPDATE Equipment SET Status = ";
-
-
-                if(checkedCount == checkboxes.size()) {
-                    query4 += "'Good To Go'";
-
-                } else {
-                    query4 += "'Do Not Use'";
-                }
-
-                query4 += " WHERE EquipmentID = " + equipmentID;
-                cursor = db.rawQuery(query4, null);
-                cursor.moveToFirst();
-                cursor.close();
-
-                Toast.makeText(getContext(), "Data saved, rescan tag to verify!", Toast.LENGTH_LONG).show();
-
+                presenter.btnSubmitClick();
+                Toast.makeText(getContext(), "Checklist saved, rescan to verify!", Toast.LENGTH_LONG).show();
             }
         });
-
     }
 
-    private void reinspect() {
-        String query = "UPDATE Equipment SET NextInspection = NULL, Status = NULL WHERE EquipmentID = " + equipmentID;
-        String query2 = "UPDATE ChecklistItem SET IsChecked = 0 WHERE ChecklistID = " + equipmentID;
-       // db = dbHelper.getReadableDatabase();
-        Cursor cursor;
-        cursor = db.rawQuery(query, null);
-        // needed otherwise tables wont update
-        cursor.moveToFirst();
-        cursor.close();
-
-        cursor = db.rawQuery(query2, null);
-        cursor.moveToFirst();
-        cursor.close();
-
-        Log.d("ChecklistView", "reinspecting");
-        adapter.clearCheckboxes();
-        getDataFromDatabase();
+    @Override
+    public void displayEquipmentID(String equipmentID) {
+        tvEquipmentID.setText(equipmentID);
     }
 
-    private void getDataFromDatabase() {
-        String query = "SELECT ChecklistItem, IsChecked FROM ChecklistItem WHERE ChecklistID = (SELECT ChecklistID FROM Equipment WHERE EquipmentID = " + equipmentID + ")";
-        Cursor cursor = db.rawQuery(query, null);
+    @Override
+    public void displayNextInspection(String date) {
+        tvNextInspection.setText(date);
+    }
 
-        HashMap<String, Integer> checklistItems = new HashMap<>();
+    @Override
+    public void displayLastInspection(String date) {
+        tvLastInspection.setText(date);
+    }
 
-        List<String> items = new ArrayList<>();
-        List<Integer> checkStatus = new ArrayList<>();
-
-        while(cursor.moveToNext()) {
-            String item = cursor.getString(cursor.getColumnIndex(ChecklistDataContract.ChecklistItemEntry.COLUMN_CHECKLISTITEM));
-            int isChecked = cursor.getInt(cursor.getColumnIndex(ChecklistDataContract.ChecklistItemEntry.COLUMN_ISCHECKED));
-            //Log.d("ChecklistView", item);
-            items.add(item);
-            //checkStatus.add(isChecked);
-            checklistItems.put(item, isChecked);
+    @Override
+    public void displayStatus(String status) {
+        if(status != null) {
+            if(status.equals(GOOD_TO_GO))
+                tvStatus.setTextColor(Color.GREEN);
+            else
+                tvStatus.setTextColor(Color.RED);
         }
 
+        tvStatus.setText(status);
+    }
 
-        Log.d("ChecklistView", Integer.toString(items.size()));
-        cursor.close();
-
-
-
-        // EquipmentID will not always equal ChecklistID, testing for now.
-        String lastInspectionQuery = "SELECT LastInspection FROM Equipment WHERE ChecklistID = " + equipmentID;
-        String nextInspectionQuery = "SELECT NextInspection FROM Equipment WHERE ChecklistID = " + equipmentID;
-        String statusQuery = "SELECT Status FROM Equipment WHERE ChecklistID = " + equipmentID;
-
-        Cursor lastInspectionCursor = db.rawQuery(lastInspectionQuery, null);
-        if(lastInspectionCursor.moveToFirst()) {
-            String lastInspection = lastInspectionCursor.getString(0);
-            tvLastInspection.setText(lastInspection);
-        }
-
-
-        lastInspectionCursor.close();
-
-        Cursor nextInspectionCursor = db.rawQuery(nextInspectionQuery, null);
-        if(nextInspectionCursor.moveToFirst()) {
-            String nextInspection = nextInspectionCursor.getString(0);
-            tvNextInspection.setText(nextInspection);
-        }
-        nextInspectionCursor.close();
-
-        Cursor statusCursor = db.rawQuery(statusQuery, null);
-        if(statusCursor.moveToFirst()) {
-            String status = statusCursor.getString(0);
-            tvStatus.setText(status);
-
-            if(status != null) {
-                if(status.equals("Good To Go")) {
-                    tvStatus.setTextColor(Color.GREEN);
-                } else {
-                    tvStatus.setTextColor(Color.RED);
-                }
-            }
-
-
-        }
-
-        statusCursor.close();
-
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+    @Override
+    public void displayChecklistItems(HashMap<String, Integer> checklistItems) {
+        layoutManager = new LinearLayoutManager(getContext());
         rvChecklist.setLayoutManager(layoutManager);
-        adapter = new ChecklistAdapter(checklistItems, items);
-       // adapter.setChecked(checkStatus);
-        rvChecklist.setAdapter(adapter);
 
-
-        if(tvStatus.getText().equals("Good To Go")) {
-            btnSubmit.setEnabled(false);
+        List<String> checklistNames = new ArrayList<>();
+        for(Map.Entry entry : checklistItems.entrySet()) {
+            Log.d("checklist", entry.getKey().toString());
+            checklistNames.add(entry.getKey().toString());
         }
+        
+        checklistAdapter = new ChecklistAdapter(checklistItems, checklistNames);
+        rvChecklist.setAdapter(checklistAdapter);
+    }
 
+    @Override
+    public void disableButtons() {
+
+    }
+
+    @Override
+    public List<CheckBox> getCheckboxes() {
+        return checklistAdapter.getCheckboxes();
     }
 
 
     public void reloadContents(String equipmentID) {
-        this.equipmentID = equipmentID;
-        tvEquipmentID.setText(equipmentID);
-        getDataFromDatabase();
+        presenter.setEquipmentID(equipmentID);
+        presenter.onStart();
     }
-
-
 }

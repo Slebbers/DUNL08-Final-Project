@@ -39,14 +39,14 @@
         android:id="@+id/etTagName" />
 
     <Button
-        android:text="Button"
+        android:text="Write Tag"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="44dp"
+        android:layout_marginStart="44dp"
+        android:layout_marginTop="35dp"
+        android:id="@+id/btnWrite"
         android:layout_below="@+id/etTagName"
         android:layout_alignLeft="@+id/etTagName"
-        android:layout_alignStart="@+id/etTagName"
-        android:layout_marginLeft="21dp"
-        android:layout_marginStart="21dp"
-        android:layout_marginTop="72dp"
-        android:id="@+id/btnWrite" />
+        android:layout_alignStart="@+id/etTagName" />
 </RelativeLayout>

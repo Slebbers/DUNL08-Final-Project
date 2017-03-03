@@ -176,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
 
             // we need to make sure the scanned tag exists before building the fragment, to avoid crashes
             // when the id is not in the database.
-            dbAccessor.setReadMode();
+            //dbAccessor.setReadMode();
 
             if (dbAccessor.checkEquipmentExists(text)) {
                 if (fragmentChecklistView == null) {
