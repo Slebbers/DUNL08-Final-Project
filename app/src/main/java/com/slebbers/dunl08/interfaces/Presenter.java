@@ -17,4 +17,5 @@ public interface Presenter {
     void onSaveClicked();
     void onOptionsItemSelected(int id);
     void bindView(MainView v);
+    void syncDatabase();
 }

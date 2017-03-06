@@ -3,6 +3,7 @@ package com.slebbers.dunl08.activities;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -13,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -28,10 +30,19 @@ import android.widget.Toast;
 import com.slebbers.dunl08.R;
 import com.slebbers.dunl08.database.DatabaseAccessor;
 import com.slebbers.dunl08.fragments.FragmentChecklistView;
+import com.slebbers.dunl08.fragments.FragmentViewChecklists;
 import com.slebbers.dunl08.interfaces.MainView;
+import com.slebbers.dunl08.network.ServerConnect;
 import com.slebbers.dunl08.presenters.PresenterMain;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity implements MainView, NavigationView.OnNavigationItemSelectedListener {
 
@@ -41,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
     private FragmentChecklistView fragmentChecklistView;
     private TextView tvScanTag;
     private DatabaseAccessor dbAccessor;
+    private SharedPreferences sharedPrefs;
 
     // NFC
     private NfcAdapter nfcAdapter;
@@ -66,7 +78,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        this.deleteDatabase("Checklist.db");
         dbAccessor = new DatabaseAccessor(getApplicationContext());
 
         if (mainPresenter == null)
@@ -83,14 +94,13 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
             Log.e("MainActivity", e.getMessage());
         }
 
-        intents = new IntentFilter[]{ndef};
+        intents = new IntentFilter[]{ ndef };
         technologies = new String[][]{new String[]{Ndef.class.getName()}};
-
 
         mainPresenter.onCreate();
         fragmentManager = getSupportFragmentManager();
 
-
+        sharedPrefs = getSharedPreferences("com.slebbers.dunl08", MODE_PRIVATE);
     }
 
     @Override
@@ -118,6 +128,12 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         super.onResume();
         mainPresenter.onResume();
 
+        if(sharedPrefs.getBoolean("initialLaunch", true)) {
+            mainPresenter.syncDatabase();
+            Toast.makeText(this, "First launch. Syncing database....", Toast.LENGTH_LONG).show();
+            sharedPrefs.edit().putBoolean("initialLaunch", false).apply();
+        }
+
         if (nfcAdapter != null)
             nfcAdapter.enableForegroundDispatch(this, pendingIntent, intents, technologies);
     }
@@ -133,7 +149,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         mainPresenter.onOptionsItemSelected(item.getItemId());
         return super.onOptionsItemSelected(item);
     }
-
 
     @Override
     public void showChecklist() {
@@ -196,8 +211,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
                 }
 
             }
-
-
         } catch (UnsupportedEncodingException e) {
             Log.e("MainActivity", e.getMessage());
         }
@@ -205,7 +218,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
         int id = item.getItemId();
 
         if (id == R.id.nav_write_tag) {
@@ -213,6 +225,11 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
             nfcAdapter.disableForegroundDispatch(this);
             Intent intent = new Intent(this, WriteTagActivity.class);
             startActivity(intent);
+        } else if(id == R.id.nav_view_inspection_details) {
+            fragmentTransaction = fragmentManager.beginTransaction();
+            FragmentViewChecklists fvc = new FragmentViewChecklists();
+            fragmentTransaction.replace(R.id.content_main, fvc);
+            fragmentTransaction.commit();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

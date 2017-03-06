@@ -12,4 +12,9 @@
         android:orderInCategory="200"
         android:title="Clear Prefs"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_connect"
+        android:orderInCategory="300"
+        android:title="Sync Database"
+        app:showAsAction="never" />
 </menu>

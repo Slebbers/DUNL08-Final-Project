@@ -29,12 +29,12 @@ public class ChecklistDataDbHelper extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 1;
 
     public static final String SQL_CREATE_TABLE_CHECKLIST =
-            "CREATE TABLE " + ChecklistEntry.TABLE_NAME + " (" +
+            "CREATE TABLE IF NOT EXISTS " + ChecklistEntry.TABLE_NAME + " (" +
                     ChecklistEntry.COLUMN_CHECKLIST_ID_PK + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     ChecklistEntry.COLUMN_EQUIPMENT_ID + " INTEGER)";
 
     public static final String SQL_CREATE_TABLE_CHECKLISTITEM =
-            "CREATE TABLE " + ChecklistItemEntry.TABLE_NAME + " (" +
+            "CREATE TABLE IF NOT EXISTS " + ChecklistItemEntry.TABLE_NAME + " (" +
             ChecklistItemEntry.COLUMN_CHECKLISTITEM_ID_PK + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
             ChecklistItemEntry.COLUMN_CHECKLISTITEM + " TEXT NOT NULL, " +
             ChecklistItemEntry.COLUMN_ISCHECKED + " INTEGER NOT NULL, " +
@@ -43,7 +43,7 @@ public class ChecklistDataDbHelper extends SQLiteOpenHelper {
             "REFERENCES " + ChecklistEntry.TABLE_NAME + "(" + ChecklistItemEntry.COLUMN_CHECKLIST_ID_FK + "))";
 
     public static final String SQL_CREATE_TABLE_EQUIPMENT =
-            "CREATE TABLE " + EquipmentEntry.TABLE_NAME + " (" +
+            "CREATE TABLE IF NOT EXISTS " + EquipmentEntry.TABLE_NAME + " (" +
             EquipmentEntry.COLUMN_EQUIPMENT_ID_PK + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
             EquipmentEntry.COLUMN_EQUIPMENT_TYPE + " TEXT, " +
             EquipmentEntry.COLUMN_LAST_INSPECTION + " TEXT, " +
@@ -55,7 +55,7 @@ public class ChecklistDataDbHelper extends SQLiteOpenHelper {
 
 
     public ChecklistDataDbHelper(Context context) {
-        super(context, DATABASE_NAME,null, DATABASE_VERSION);
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
 
@@ -68,6 +68,6 @@ public class ChecklistDataDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-        sqLiteDatabase.execSQL("ALTER TABLE EQUIPMENT ADD COLUMN EquipmentType");
+
     }
 }

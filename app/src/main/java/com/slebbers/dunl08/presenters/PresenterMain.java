@@ -1,28 +1,29 @@
 package com.slebbers.dunl08.presenters;
 
-import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.database.sqlite.SQLiteDatabase;
-
-import android.nfc.NfcAdapter;
-import android.nfc.tech.Ndef;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.slebbers.dunl08.R;
 import com.slebbers.dunl08.database.ChecklistDataContract;
 import com.slebbers.dunl08.database.ChecklistDataDbHelper;
+import com.slebbers.dunl08.database.DatabaseAccessor;
 import com.slebbers.dunl08.interfaces.MainView;
 import com.slebbers.dunl08.interfaces.Presenter;
-import com.slebbers.dunl08.nfc.NFCHelper;
+import com.slebbers.dunl08.model.Checklist;
+import com.slebbers.dunl08.network.ServerConnect;
 
-
+import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import static com.slebbers.dunl08.database.ChecklistDataContract.ChecklistEntry.COLUMN_CHECKLIST_ID_PK;
 import static com.slebbers.dunl08.database.ChecklistDataContract.ChecklistEntry.COLUMN_EQUIPMENT_ID;
@@ -36,29 +37,27 @@ import static com.slebbers.dunl08.database.ChecklistDataContract.EquipmentEntry.
 import static com.slebbers.dunl08.database.ChecklistDataContract.EquipmentEntry.COLUMN_NEXT_INSPECTION;
 import static com.slebbers.dunl08.database.ChecklistDataContract.EquipmentEntry.COLUMN_PASS_FAIL;
 
-/**
- * Created by Paul on 20/01/2017.
- */
 
 public class PresenterMain implements Presenter {
 
     private MainView view;
     private ChecklistDataDbHelper dbHelper;
     private Context context;
-
-
+    private ServerConnect connection;
+    private DatabaseAccessor db;
 
     public PresenterMain(Context context, MainView view) {
         this.context = context;
         this.view = view;
         dbHelper = new ChecklistDataDbHelper(context);
+        connection = new ServerConnect();
+        db = new DatabaseAccessor(context);
     }
 
 
     @Override
     public void onCreate() {
-        // keep here for now
-        writeStuffToDB();
+
     }
 
     @Override
@@ -76,22 +75,47 @@ public class PresenterMain implements Presenter {
 
     }
 
-
+    @Override
+    public void syncDatabase() {
+        checkDatabase(connection.getServerDatabaseJSON());
+    }
 
     @Override
     public void onOptionsItemSelected(int id) {
         switch(id) {
             case R.id.action_settings:
                 break;
-            case R.id.action_clear:
-            //    view.clearPrefs();
-                break;
+            case R.id.action_connect:
+                checkDatabase(connection.getServerDatabaseJSON());
             default:
                 break;
         }
     }
 
+    private String connect() {
+        return connection.getServerDatabaseJSON();
+    }
 
+    private void checkDatabase(String serverJSON)  {
+        Type listType = new TypeToken<ArrayList<Checklist>>(){}.getType();
+        List<Checklist> checklists = new Gson().fromJson(serverJSON, listType);
+        Log.d("returnedData", checklists.toString());
+
+        for(int i = 0; i < checklists.size(); i++) {
+            if(!db.checkEquipmentExists(checklists.get(i).getEquipmentID())) {
+                String equipmentID = checklists.get(i).getEquipmentID();
+                String checklistID = checklists.get(i).getChecklistID();
+                String equipmentType = checklists.get(i).getEquipmentType();
+
+                // insert
+                db.addChecklistAndEquipment(checklistID, equipmentID, equipmentType);
+                db.updateLastInspection(equipmentID, checklists.get(i).getLastInspection());
+                db.updateNextInspection(equipmentID, checklists.get(i).getNextInspection());
+                db.updateEquipmentStatus(equipmentID, checklists.get(i).getStatus());
+                db.insertChecklistItems(checklistID, checklists.get(i).getChecklistItems());
+            }
+        }
+    }
 
     @Override
     public void bindView(MainView mainView) {

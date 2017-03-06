@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public interface ChecklistView {
-    void displayEquipmentID(String equipmentID);
+    void displayEquipmentType(String equipmentType);
     void displayNextInspection(String date);
     void displayLastInspection(String date);
     void displayStatus(String status);

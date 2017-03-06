@@ -1,8 +1,6 @@
 package com.slebbers.dunl08.activities;
 
 import android.app.PendingIntent;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.nfc.NfcAdapter;
@@ -13,9 +11,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.slebbers.dunl08.R;
 import com.slebbers.dunl08.nfc.NFCHelper;
@@ -27,6 +25,8 @@ public class WriteTagActivity extends AppCompatActivity {
     private String tagWriteableName;
     private AlertDialog writeTagDialog;
     private NFCHelper nfcHelper;
+    private TextView tvEquipmentID;
+    private TextView tvEquipmentType;
     private Button btnWrite;
 
     @Override
@@ -41,12 +41,16 @@ public class WriteTagActivity extends AppCompatActivity {
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
 
+        tvEquipmentID = (TextView) findViewById(R.id.tvEquipmentID);
+        tvEquipmentID.setText(getIntent().getStringExtra("EquipmentID"));
+        tvEquipmentType = (TextView) findViewById(R.id.tvEquipmentType);
+        tvEquipmentType.setText(getIntent().getStringExtra("EquipmentType"));
+
         btnWrite = (Button) findViewById(R.id.btnWrite);
         btnWrite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EditText tagID = (EditText) findViewById(R.id.etTagName);
-                tagWriteableName = tagID.getText().toString();
+                tagWriteableName = tvEquipmentID.getText().toString();
 
                 writeTagDialog = new AlertDialog.Builder(WriteTagActivity.this)
                         .setTitle("Write to tag")
@@ -54,14 +58,8 @@ public class WriteTagActivity extends AppCompatActivity {
                         .create();
 
                 writeTagDialog.show();
-
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),0);
-
             }
         });
-
-
     }
 
 

@@ -21,16 +21,14 @@ import com.slebbers.dunl08.adapters.ChecklistAdapter;
 import com.slebbers.dunl08.interfaces.ChecklistView;
 import com.slebbers.dunl08.presenters.PresenterChecklistView;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class FragmentChecklistView extends Fragment implements ChecklistView {
 
-    private TextView tvEquipmentID;
+    private TextView tvEquipmentType;
     private TextView tvLastInspection;
     private TextView tvNextInspection;
     private TextView tvStatus;
@@ -47,7 +45,7 @@ public class FragmentChecklistView extends Fragment implements ChecklistView {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_checklist_view, container, false);
-        tvEquipmentID = (TextView) view.findViewById(R.id.tvEquipmentID);
+        tvEquipmentType = (TextView) view.findViewById(R.id.tvEquipmentType);
         tvLastInspection = (TextView) view.findViewById(R.id.tvLastInspection);
         tvNextInspection = (TextView) view.findViewById(R.id.tvNextInspection);
         tvStatus = (TextView) view.findViewById(R.id.tvStatus);
@@ -84,8 +82,8 @@ public class FragmentChecklistView extends Fragment implements ChecklistView {
     }
 
     @Override
-    public void displayEquipmentID(String equipmentID) {
-        tvEquipmentID.setText(equipmentID);
+    public void displayEquipmentType(String equipmentType) {
+        tvEquipmentType.setText(equipmentType);
     }
 
     @Override
@@ -120,14 +118,14 @@ public class FragmentChecklistView extends Fragment implements ChecklistView {
             Log.d("checklist", entry.getKey().toString());
             checklistNames.add(entry.getKey().toString());
         }
-        
+
         checklistAdapter = new ChecklistAdapter(checklistItems, checklistNames);
         rvChecklist.setAdapter(checklistAdapter);
     }
 
     @Override
     public void disableButtons() {
-
+        btnSubmit.setEnabled(false);
     }
 
     @Override
