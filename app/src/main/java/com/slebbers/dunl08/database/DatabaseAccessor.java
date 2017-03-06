@@ -100,15 +100,17 @@ public class DatabaseAccessor {
     }
 
     // Returns a HashMap containing the checklist item as the key, as the checked status as the value
-    public HashMap<String, Integer> getChecklistItems(String equipmentID) {
-        HashMap<String, Integer> checklistItems = new HashMap<>();
+    public List<ChecklistItem> getChecklistItems(String equipmentID) {
+        List<ChecklistItem> checklistItems = new ArrayList<>();
+        ChecklistItem item;
         String checklistItemsQuery = "SELECT ChecklistItem, IsChecked FROM ChecklistItem WHERE ChecklistID = (SELECT ChecklistID FROM Equipment WHERE EquipmentID = " + equipmentID + ")";
         Cursor checklistItemsCursor = db.rawQuery(checklistItemsQuery, null);
 
         while (checklistItemsCursor.moveToNext()) {
-            String item = checklistItemsCursor.getString(checklistItemsCursor.getColumnIndex(ChecklistDataContract.ChecklistItemEntry.COLUMN_CHECKLISTITEM));
-            int isChecked = checklistItemsCursor.getInt(checklistItemsCursor.getColumnIndex(ChecklistDataContract.ChecklistItemEntry.COLUMN_ISCHECKED));
-            checklistItems.put(item, isChecked);
+            item = new ChecklistItem();
+            item.setChecklistItem(checklistItemsCursor.getString(checklistItemsCursor.getColumnIndex(ChecklistDataContract.ChecklistItemEntry.COLUMN_CHECKLISTITEM)));
+            item.setIsChecked(Integer.toString(checklistItemsCursor.getInt(checklistItemsCursor.getColumnIndex(ChecklistDataContract.ChecklistItemEntry.COLUMN_ISCHECKED))));
+            checklistItems.add(item);
         }
 
         checklistItemsCursor.close();
@@ -116,7 +118,7 @@ public class DatabaseAccessor {
     }
 
     public String getLastInspection(String equipmentID) {
-        String lastInspectionQuery = "SELECT LastInspection FROM Equipment WHERE ChecklistID = " + equipmentID;
+        String lastInspectionQuery = "SELECT LastInspection FROM Equipment WHERE EquipmentID = " + equipmentID;
         Cursor lastInspectionCursor = db.rawQuery(lastInspectionQuery, null);
 
         if(lastInspectionCursor.moveToNext()) {
@@ -125,12 +127,12 @@ public class DatabaseAccessor {
             return lastInspection;
         } else {
             lastInspectionCursor.close();
-            return null;
+            return "";
         }
     }
 
     public String getNextInspection(String equipmentID) {
-        String nextInspectionQuery = "SELECT NextInspection FROM Equipment WHERE ChecklistID = " + equipmentID;
+        String nextInspectionQuery = "SELECT NextInspection FROM Equipment WHERE EquipmentID = " + equipmentID;
         Cursor nextInspectionCursor = db.rawQuery(nextInspectionQuery, null);
 
         if(nextInspectionCursor.moveToNext()) {
@@ -139,12 +141,12 @@ public class DatabaseAccessor {
             return lastInspection;
         } else {
             nextInspectionCursor.close();
-            return null;
+            return "";
         }
     }
 
     public String getChecklistStatus(String equipmentID) {
-        String statusQuery = "SELECT Status FROM Equipment WHERE ChecklistID = " + equipmentID;
+        String statusQuery = "SELECT Status FROM Equipment WHERE EquipmentID = " + equipmentID;
         Cursor statusCursor = db.rawQuery(statusQuery, null);
 
         if(statusCursor.moveToNext()) {
@@ -153,7 +155,7 @@ public class DatabaseAccessor {
             return lastInspection;
         } else {
             statusCursor.close();
-            return null;
+            return "";
         }
     }
 

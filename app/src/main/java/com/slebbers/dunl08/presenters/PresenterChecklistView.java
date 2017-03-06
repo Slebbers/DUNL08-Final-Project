@@ -24,6 +24,7 @@ public class PresenterChecklistView implements ChecklistViewPresenter {
     private ServerConnect serverConnect;
     private ChecklistView view;
     private String equipmentID;
+    private String checklistID;
     private Context context;
 
     private final String GOOD_TO_GO = "Good To Go";
@@ -42,7 +43,14 @@ public class PresenterChecklistView implements ChecklistViewPresenter {
         view.displayLastInspection(db.getLastInspection(equipmentID));
         view.displayNextInspection(db.getNextInspection(equipmentID));
         view.displayStatus(db.getChecklistStatus(equipmentID));
-        view.displayChecklistItems(db.getChecklistItems(equipmentID));
+
+        // On start, all should be disabled until reinspect is clicked
+        List<ChecklistItem> checklistItems = db.getChecklistItems(equipmentID);
+        for(ChecklistItem item : checklistItems) {
+            item.setIsEnabled(false);
+        }
+
+        view.displayChecklistItems(checklistItems);
     }
 
     @Override
@@ -52,10 +60,16 @@ public class PresenterChecklistView implements ChecklistViewPresenter {
 
     @Override
     public void btnReinspectClick() {
-        db.clearCheckedStatus(db.getEquipmentChecklistID(equipmentID));
-        view.displayLastInspection(SimpleDateFormat.getDateInstance().format(new Date()));
-        db.clearNextInspection(equipmentID);
+        List<ChecklistItem> checklistItems = db.getChecklistItems(equipmentID);
+        for(ChecklistItem item : checklistItems) {
+            item.setIsChecked("0");
+            item.setIsEnabled(true);
+        }
 
+        db.clearCheckedStatus(db.getEquipmentChecklistID(equipmentID));
+        db.clearNextInspection(equipmentID);
+        view.displayLastInspection(SimpleDateFormat.getDateInstance().format(new Date()));
+        view.displayChecklistItems(checklistItems);
     }
 
     @Override
@@ -69,18 +83,9 @@ public class PresenterChecklistView implements ChecklistViewPresenter {
         String nextInspection = SimpleDateFormat.getDateInstance().format(calendar.getTime());
         String checklistID = db.getEquipmentChecklistID(equipmentID);
         Checklist checklist = new Checklist();
-        ChecklistItem item;
-        List<CheckBox> checkboxes = view.getCheckboxes();
+        List<ChecklistItem> checkboxes = view.getCheckboxes();
 
-        for(CheckBox cb : checkboxes) {
-            item = new ChecklistItem();
-            item.setChecklistItem(cb.getText().toString());
-
-            if(cb.isChecked())
-                item.setIsChecked("1");
-            else
-                item.setIsChecked("0");
-
+        for(ChecklistItem item : checkboxes) {
             checklist.addChecklistItem(item);
         }
 
@@ -105,7 +110,7 @@ public class PresenterChecklistView implements ChecklistViewPresenter {
         String status = serverConnect.submitChecklist(checklist);
 
         if(status.equals("complete")) {
-            Toast.makeText(context, "Saved locally and saved at server.", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Saved at server. Rescan tag to verify results", Toast.LENGTH_LONG).show();
         } else {
             Toast.makeText(context, "Could not sync to server...", Toast.LENGTH_LONG).show();
             Log.d("PCV Submit ERROR: ", status);
@@ -114,11 +119,11 @@ public class PresenterChecklistView implements ChecklistViewPresenter {
         view.disableButtons();
     }
 
-    private boolean isGoodToGo(List<CheckBox> checkboxes) {
+    private boolean isGoodToGo(List<ChecklistItem> checkboxes) {
         int numChecked = 0;
 
-        for(CheckBox cb : checkboxes) {
-            if(cb.isChecked())
+        for(ChecklistItem item : checkboxes) {
+            if(item.getIsChecked().equals("1"))
                 numChecked++;
         }
 

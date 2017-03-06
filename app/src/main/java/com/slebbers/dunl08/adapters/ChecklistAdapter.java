@@ -6,8 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 
 import com.slebbers.dunl08.R;
+import com.slebbers.dunl08.model.ChecklistItem;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,9 +17,8 @@ import java.util.List;
 
 public class ChecklistAdapter extends RecyclerView.Adapter<ChecklistAdapter.ViewHolder> {
 
-    private List<String> items;
-    private HashMap<String, Integer> checklistItems;
-    private static List<CheckBox> checkboxes = new ArrayList<>();
+    private List<CheckBox> checkboxes;
+    private List<ChecklistItem> checklistItems;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         CheckBox checkbox;
@@ -26,12 +27,11 @@ public class ChecklistAdapter extends RecyclerView.Adapter<ChecklistAdapter.View
             super(itemView);
             checkbox = (CheckBox) itemView.findViewById(R.id.cbItem);
         }
-
     }
 
-    public ChecklistAdapter(HashMap<String, Integer> checklistItems, List<String> items) {
+    public ChecklistAdapter(List<ChecklistItem> checklistItems) {
         this.checklistItems = checklistItems;
-        this.items = items;
+        checkboxes = new ArrayList<>();
     }
 
     @Override
@@ -46,31 +46,40 @@ public class ChecklistAdapter extends RecyclerView.Adapter<ChecklistAdapter.View
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.checkbox.setText(items.get(position));
+    public void onBindViewHolder(final ViewHolder holder, int position) {
+        final ChecklistItem item = checklistItems.get(position);
 
-        if(checklistItems.get(items.get(position)) == 1) {
+        holder.checkbox.setOnCheckedChangeListener(null);
+        holder.checkbox.setText(item.getChecklistItem());
+
+        if(item.getIsChecked().equals("1")) {
             holder.checkbox.setChecked(true);
-            holder.checkbox.setEnabled(false);
         } else {
             holder.checkbox.setChecked(false);
-            holder.checkbox.setEnabled(true);
         }
+
+        if(item.getIsEnabled())
+            holder.checkbox.setEnabled(true);
+        else
+            holder.checkbox.setEnabled(false);
 
         if(!checkboxes.contains(holder.checkbox))
             checkboxes.add(holder.checkbox);
 
-
+        // If our recyclerview scrolls, we need to be able to save is the checkbox was checked or not.
+        holder.checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if(isChecked) {
+                    checklistItems.get(holder.getAdapterPosition()).setIsChecked("1");
+                } else {
+                    checklistItems.get(holder.getAdapterPosition()).setIsChecked("0");
+                }
+            }
+        });
     }
 
-    public List<CheckBox> getCheckboxes() {
-       // return checkboxes;
-        return checkboxes;
+    public List<ChecklistItem> getCheckboxes() {
+        return checklistItems;
     }
-
-    public void clearCheckboxes() {
-        checkboxes.clear();
-    }
-
-
 }

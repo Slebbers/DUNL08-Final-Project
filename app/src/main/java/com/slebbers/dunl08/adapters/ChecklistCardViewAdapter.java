@@ -68,19 +68,19 @@ public class ChecklistCardViewAdapter extends RecyclerView.Adapter<ChecklistCard
         holder.tvEquipmentType.setText(checklists.get(position).getEquipmentType());
 
         // Null database cursors set string values to "null" ...
-        if(checklists.get(position).getLastInspection().equals("null")) {
+        if(checklists.get(position).getLastInspection() == null) {
             holder.tvLastInspection.setText("Not Set");
         } else {
             holder.tvLastInspection.setText(checklists.get(position).getLastInspection());
         }
 
-        if(checklists.get(position).getNextInspection().equals("null")) {
+        if(checklists.get(position).getNextInspection() == null) {
             holder.tvNextInspection.setText("Not Set");
         } else {
             holder.tvNextInspection.setText(checklists.get(position).getNextInspection());
         }
 
-        if(checklists.get(position).getStatus().equals("null")) {
+        if(checklists.get(position).getStatus() == null) {
             holder.tvStatus.setText("Not Set");
         } else {
             holder.tvStatus.setText(checklists.get(position).getStatus());

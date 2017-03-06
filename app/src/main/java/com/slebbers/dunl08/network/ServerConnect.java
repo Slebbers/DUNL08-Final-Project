@@ -35,7 +35,7 @@ public class ServerConnect {
             @Override
             public void run() {
                 try {
-                    String url = "http://192.168.1.67/Checklist/php/appConnect.php";
+                    String url = "https://devweb2015.cis.strath.ac.uk/~isb14166/Checklist/php/appConnect.php";
 
                     Request request = new Request.Builder()
                             .url(url)
@@ -65,7 +65,7 @@ public class ServerConnect {
             @Override
             public void run() {
                 try {
-                    String url = "http://192.168.1.67/Checklist/php/appSubmit.php?json=";
+                    String url = "https://devweb2015.cis.strath.ac.uk/~isb14166/Checklist/php/appSubmit.php?json=";
 
                     url += new Gson().toJson(checklist);
 

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -77,6 +78,7 @@ public class PresenterMain implements Presenter {
 
     @Override
     public void syncDatabase() {
+        Log.d("JSON", connection.getServerDatabaseJSON());
         checkDatabase(connection.getServerDatabaseJSON());
     }
 
@@ -115,6 +117,8 @@ public class PresenterMain implements Presenter {
                 db.insertChecklistItems(checklistID, checklists.get(i).getChecklistItems());
             }
         }
+
+        Toast.makeText(context, "Sync complete", Toast.LENGTH_LONG).show();
     }
 
     @Override

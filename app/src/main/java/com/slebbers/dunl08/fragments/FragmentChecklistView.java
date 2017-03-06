@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.slebbers.dunl08.R;
 import com.slebbers.dunl08.adapters.ChecklistAdapter;
 import com.slebbers.dunl08.interfaces.ChecklistView;
+import com.slebbers.dunl08.model.ChecklistItem;
 import com.slebbers.dunl08.presenters.PresenterChecklistView;
 
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ public class FragmentChecklistView extends Fragment implements ChecklistView {
     private PresenterChecklistView presenter;
 
     private final String GOOD_TO_GO = "Good To Go";
+    private final String DO_NOT_USE = "Do Not Use";
 
     @Nullable
     @Override
@@ -66,17 +68,19 @@ public class FragmentChecklistView extends Fragment implements ChecklistView {
             @Override
             public void onClick(View view) {
                 presenter.btnReinspectClick();
-                checklistAdapter.clearCheckboxes();
-                presenter.onStart();
                 btnSubmit.setEnabled(true);
+                btnReinspect.setEnabled(false);
             }
         });
 
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                btnSubmit.setEnabled(false);
+                Toast.makeText(getContext(), "Checklist saved, saving to server...", Toast.LENGTH_SHORT).show();
                 presenter.btnSubmitClick();
-                Toast.makeText(getContext(), "Checklist saved, rescan to verify!", Toast.LENGTH_LONG).show();
+
+                //TODO: make checklistitems disabled again
             }
         });
     }
@@ -88,38 +92,52 @@ public class FragmentChecklistView extends Fragment implements ChecklistView {
 
     @Override
     public void displayNextInspection(String date) {
-        tvNextInspection.setText(date);
+        if(date != null) {
+            if (date.isEmpty())
+                tvNextInspection.setText("Not Set");
+            else
+                tvNextInspection.setText(date);
+        } else {
+            tvNextInspection.setText("Not Set");
+        }
     }
 
     @Override
     public void displayLastInspection(String date) {
-        tvLastInspection.setText(date);
+        if(date != null) {
+            if (date.isEmpty())
+                tvLastInspection.setText("Not Set");
+            else
+                tvLastInspection.setText(date);
+        } else {
+            tvLastInspection.setText("Not Set");
+        }
+
     }
 
     @Override
     public void displayStatus(String status) {
         if(status != null) {
-            if(status.equals(GOOD_TO_GO))
-                tvStatus.setTextColor(Color.GREEN);
-            else
-                tvStatus.setTextColor(Color.RED);
-        }
+            if(status.isEmpty()) {
+                tvStatus.setText("Not Set");
+            } else {
+                if(status.equals(GOOD_TO_GO))
+                    tvStatus.setTextColor(Color.GREEN);
+                else if(status.equals(DO_NOT_USE))
+                    tvStatus.setTextColor(Color.RED);
 
-        tvStatus.setText(status);
+                tvStatus.setText(status);
+            }
+        } else {
+            tvStatus.setText("Not Set");
+        }
     }
 
     @Override
-    public void displayChecklistItems(HashMap<String, Integer> checklistItems) {
+    public void displayChecklistItems(List<ChecklistItem> checklistItems) {
         layoutManager = new LinearLayoutManager(getContext());
         rvChecklist.setLayoutManager(layoutManager);
-
-        List<String> checklistNames = new ArrayList<>();
-        for(Map.Entry entry : checklistItems.entrySet()) {
-            Log.d("checklist", entry.getKey().toString());
-            checklistNames.add(entry.getKey().toString());
-        }
-
-        checklistAdapter = new ChecklistAdapter(checklistItems, checklistNames);
+        checklistAdapter = new ChecklistAdapter(checklistItems);
         rvChecklist.setAdapter(checklistAdapter);
     }
 
@@ -129,7 +147,7 @@ public class FragmentChecklistView extends Fragment implements ChecklistView {
     }
 
     @Override
-    public List<CheckBox> getCheckboxes() {
+    public List<ChecklistItem> getCheckboxes() {
         return checklistAdapter.getCheckboxes();
     }
 

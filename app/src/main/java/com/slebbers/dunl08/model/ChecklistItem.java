@@ -9,6 +9,7 @@ public class ChecklistItem {
     private String ChecklistItemID;
     private String ChecklistItem;
     private String IsChecked;
+    private boolean IsEnabled;
 
     public ChecklistItem() {
 
@@ -36,5 +37,13 @@ public class ChecklistItem {
 
     public void setIsChecked(String isChecked) {
         IsChecked = isChecked;
+    }
+
+    public boolean getIsEnabled() {
+        return IsEnabled;
+    }
+
+    public void setIsEnabled(boolean isEnabled) {
+        IsEnabled = isEnabled;
     }
 }
