@@ -1,4 +1,4 @@
-package com.slebbers.dunl08.activities;
+package com.slebbers.dunl08.activities.writetag;
 
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -13,14 +13,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.slebbers.dunl08.R;
 import com.slebbers.dunl08.nfc.NFCHelper;
 
 public class WriteTagActivity extends AppCompatActivity {
 
-    private  NfcAdapter nfcAdapter;
+    private NfcAdapter nfcAdapter;
     private PendingIntent pendingIntent;
     private String tagWriteableName;
     private AlertDialog writeTagDialog;
@@ -44,7 +43,7 @@ public class WriteTagActivity extends AppCompatActivity {
         tvEquipmentID = (TextView) findViewById(R.id.tvEquipmentID);
         tvEquipmentID.setText(getIntent().getStringExtra("EquipmentID"));
         tvEquipmentType = (TextView) findViewById(R.id.tvEquipmentType);
-        tvEquipmentType.setText(getIntent().getStringExtra("EquipmentType"));
+        tvEquipmentType.setText(getIntent().getStringExtra("EquipmentName"));
 
         btnWrite = (Button) findViewById(R.id.btnWrite);
         btnWrite.setOnClickListener(new View.OnClickListener() {

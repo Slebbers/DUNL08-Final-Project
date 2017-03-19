@@ -1,4 +1,4 @@
-package com.slebbers.dunl08.interfaces;
+package com.slebbers.dunl08.fragments.inspectionview;
 
 import android.widget.CheckBox;
 

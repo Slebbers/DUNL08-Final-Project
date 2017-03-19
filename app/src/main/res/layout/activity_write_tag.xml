@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.slebbers.dunl08.activities.WriteTagActivity">
+    tools:context="com.slebbers.dunl08.activities.writetag.WriteTagActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"

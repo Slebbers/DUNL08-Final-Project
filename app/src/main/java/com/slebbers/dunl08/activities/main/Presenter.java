@@ -1,6 +1,6 @@
-package com.slebbers.dunl08.interfaces;
+package com.slebbers.dunl08.activities.main;
 
-import android.content.Intent;
+import android.nfc.NdefRecord;
 
 /**
  * Created by Paul on 27/01/2017.
@@ -12,10 +12,9 @@ public interface Presenter {
     void onResume();
     void onDestroy();
     void setupNFC();
-    void onTagScanned(Intent intent);
+    void onTagScanned(NdefRecord record);
     void onCheckboxClicked();
     void onSaveClicked();
     void onOptionsItemSelected(int id);
-    void bindView(MainView v);
-    void syncDatabase();
+    void firstLaunch();
 }

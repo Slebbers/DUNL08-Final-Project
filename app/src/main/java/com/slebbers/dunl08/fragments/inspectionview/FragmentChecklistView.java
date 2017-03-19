@@ -1,4 +1,4 @@
-package com.slebbers.dunl08.fragments;
+package com.slebbers.dunl08.fragments.inspectionview;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -6,26 +6,18 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
 import com.slebbers.dunl08.R;
-import com.slebbers.dunl08.adapters.ChecklistAdapter;
-import com.slebbers.dunl08.interfaces.ChecklistView;
 import com.slebbers.dunl08.model.ChecklistItem;
-import com.slebbers.dunl08.presenters.PresenterChecklistView;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class FragmentChecklistView extends Fragment implements ChecklistView {
 
@@ -93,7 +85,7 @@ public class FragmentChecklistView extends Fragment implements ChecklistView {
     @Override
     public void displayNextInspection(String date) {
         if(date != null) {
-            if (date.isEmpty())
+            if (date.isEmpty() || date.equals("null"))
                 tvNextInspection.setText("Not Set");
             else
                 tvNextInspection.setText(date);
@@ -105,7 +97,7 @@ public class FragmentChecklistView extends Fragment implements ChecklistView {
     @Override
     public void displayLastInspection(String date) {
         if(date != null) {
-            if (date.isEmpty())
+            if (date.isEmpty() || date.equals("null"))
                 tvLastInspection.setText("Not Set");
             else
                 tvLastInspection.setText(date);
@@ -118,7 +110,7 @@ public class FragmentChecklistView extends Fragment implements ChecklistView {
     @Override
     public void displayStatus(String status) {
         if(status != null) {
-            if(status.isEmpty()) {
+            if(status.isEmpty() || status.equals("null")) {
                 tvStatus.setText("Not Set");
             } else {
                 if(status.equals(GOOD_TO_GO))
@@ -144,6 +136,7 @@ public class FragmentChecklistView extends Fragment implements ChecklistView {
     @Override
     public void disableButtons() {
         btnSubmit.setEnabled(false);
+        btnReinspect.setEnabled(true);
     }
 
     @Override
@@ -155,5 +148,6 @@ public class FragmentChecklistView extends Fragment implements ChecklistView {
     public void reloadContents(String equipmentID) {
         presenter.setEquipmentID(equipmentID);
         presenter.onStart();
+        btnReinspect.setEnabled(true);
     }
 }

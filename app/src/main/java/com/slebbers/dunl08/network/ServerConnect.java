@@ -3,18 +3,8 @@ package com.slebbers.dunl08.network;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
 import com.slebbers.dunl08.model.Checklist;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -35,6 +25,7 @@ public class ServerConnect {
             @Override
             public void run() {
                 try {
+                    //String url = "https://devweb2015.cis.strath.ac.uk/~isb14166/Checklist/php/appConnect.php";
                     String url = "https://devweb2015.cis.strath.ac.uk/~isb14166/Checklist/php/appConnect.php";
 
                     Request request = new Request.Builder()
@@ -65,10 +56,11 @@ public class ServerConnect {
             @Override
             public void run() {
                 try {
+                    //String url = "https://devweb2015.cis.strath.ac.uk/~isb14166/Checklist/php/appSubmit.php?json=";
                     String url = "https://devweb2015.cis.strath.ac.uk/~isb14166/Checklist/php/appSubmit.php?json=";
 
                     url += new Gson().toJson(checklist);
-
+                    Log.d("con", url);
                     Request request = new Request.Builder()
                             .url(url)
                             .build();

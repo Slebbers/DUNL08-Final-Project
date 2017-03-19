@@ -20,6 +20,7 @@ import java.util.Locale;
  */
 
 public class NFCHelper {
+
     private Ndef ndefTag;
 
     public NFCHelper() {
@@ -51,17 +52,21 @@ public class NFCHelper {
         }
     }
 
-    // return some kind of data here
-    public void readTag() {
-
+    /*
+        When we write to the tags we build simple strings according to the NFC spec,
+        so we will retrieve them in the same fashion.
+     */
+    public String readTag(NdefRecord record) throws UnsupportedEncodingException {
+        byte[] content = record.getPayload();
+        String encoding = ((content[0] & 128) == 0) ? "UTF-8" : "UTF-16";
+        int languages = content[0] & 0063;
+        return new String(content, languages + 1, content.length - languages - 1, encoding);
     }
 
     public NdefMessage buildMessage(String text) {
-
         try {
             byte[] lang = Locale.getDefault().getLanguage().getBytes("UTF-8");
             byte[] textPayload = text.getBytes("UTF-8");
-
             int langSize = lang.length;
             int textLength = textPayload.length;
 

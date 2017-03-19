@@ -1,4 +1,4 @@
-package com.slebbers.dunl08.adapters;
+package com.slebbers.dunl08.fragments.inspectionview;
 
 
 import android.support.v7.widget.RecyclerView;
@@ -12,7 +12,6 @@ import com.slebbers.dunl08.R;
 import com.slebbers.dunl08.model.ChecklistItem;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class ChecklistAdapter extends RecyclerView.Adapter<ChecklistAdapter.ViewHolder> {
@@ -51,6 +50,7 @@ public class ChecklistAdapter extends RecyclerView.Adapter<ChecklistAdapter.View
 
         holder.checkbox.setOnCheckedChangeListener(null);
         holder.checkbox.setText(item.getChecklistItem());
+
 
         if(item.getIsChecked().equals("1")) {
             holder.checkbox.setChecked(true);

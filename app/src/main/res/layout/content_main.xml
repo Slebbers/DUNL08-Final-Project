@@ -10,20 +10,42 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.slebbers.dunl08.activities.MainActivity"
+    tools:context="com.slebbers.dunl08.activities.main.MainActivity"
     tools:showIn="@layout/activity_main">
 
+        <!-- If the top relative layout is removed, other fragments are displayed below tvScanTag
+             so it is kept in the layout. -->
+        <LinearLayout android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:orientation="vertical">
+                <TextView
+                    android:id="@+id/tvScanTag"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingTop="100dp"
+                    android:text="Place a tag near the device to scan."
+                    android:visibility="visible" />
 
-    <TextView
-        android:text="Please scan a tag."
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginLeft="100dp"
-        android:layout_marginStart="100dp"
-        android:layout_marginTop="88dp"
-        android:id="@+id/tvScanTag"
-        android:textSize="18sp" />
+                <TextView
+                    android:id="@+id/tvSync"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingTop="50dp"
+                    android:text="Syncing with remote database"
+                    android:visibility="invisible" />
+
+                <ProgressBar
+                    android:id="@+id/pbSync"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingTop="20dp"
+                    android:visibility="invisible" />
+        </LinearLayout>
 </RelativeLayout>

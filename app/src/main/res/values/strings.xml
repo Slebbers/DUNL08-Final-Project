@@ -1,10 +1,7 @@
 <resources>
-    <string name="app_name">DUNL08</string>
+    <string name="app_name">Good To Go Safety</string>
     <string name="action_settings">Settings</string>
-    <string name="preference_file_key1">device1</string>
-    <string name="preference_file_key2">device2</string>
-    <string name="preference_file_key3">device3</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="title_activity_write_tag">WriteTagActivity</string>
+    <string name="title_activity_write_tag">Write Tag</string>
 </resources>

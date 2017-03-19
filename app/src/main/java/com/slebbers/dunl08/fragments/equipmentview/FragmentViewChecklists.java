@@ -1,4 +1,4 @@
-package com.slebbers.dunl08.fragments;
+package com.slebbers.dunl08.fragments.equipmentview;
 
 
 import android.os.Bundle;
@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.slebbers.dunl08.R;
-import com.slebbers.dunl08.adapters.ChecklistCardViewAdapter;
 import com.slebbers.dunl08.database.DatabaseAccessor;
 import com.slebbers.dunl08.model.Checklist;
 

@@ -1,17 +1,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.slebbers.dunl08.activities.MainActivity">
-    <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_clear"
-        android:orderInCategory="200"
-        android:title="Clear Prefs"
-        app:showAsAction="never" />
+    tools:context="com.slebbers.dunl08.activities.main.MainActivity">
+    <!--<item-->
+        <!--android:id="@+id/action_settings"-->
+        <!--android:orderInCategory="100"-->
+        <!--android:title="@string/action_settings"-->
+        <!--app:showAsAction="never" />-->
+    <!--<item-->
+        <!--android:id="@+id/action_clear"-->
+        <!--android:orderInCategory="200"-->
+        <!--android:title="Clear Prefs"-->
+        <!--app:showAsAction="never" />-->
     <item
         android:id="@+id/action_connect"
         android:orderInCategory="300"

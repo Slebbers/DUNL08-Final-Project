@@ -1,19 +1,17 @@
-package com.slebbers.dunl08.presenters;
+package com.slebbers.dunl08.fragments.inspectionview;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.CheckBox;
 import android.widget.Toast;
 
 import com.slebbers.dunl08.database.DatabaseAccessor;
-import com.slebbers.dunl08.interfaces.ChecklistView;
-import com.slebbers.dunl08.interfaces.ChecklistViewPresenter;
+import com.slebbers.dunl08.fragments.inspectionview.ChecklistView;
+import com.slebbers.dunl08.fragments.inspectionview.ChecklistViewPresenter;
 import com.slebbers.dunl08.model.Checklist;
 import com.slebbers.dunl08.model.ChecklistItem;
 import com.slebbers.dunl08.network.ServerConnect;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -39,7 +37,7 @@ public class PresenterChecklistView implements ChecklistViewPresenter {
 
     @Override
     public void onStart() {
-        view.displayEquipmentType(db.getEquipmentType(equipmentID));
+        view.displayEquipmentType(db.getEquipmentName(equipmentID));
         view.displayLastInspection(db.getLastInspection(equipmentID));
         view.displayNextInspection(db.getNextInspection(equipmentID));
         view.displayStatus(db.getChecklistStatus(equipmentID));
@@ -66,7 +64,8 @@ public class PresenterChecklistView implements ChecklistViewPresenter {
             item.setIsEnabled(true);
         }
 
-        db.clearCheckedStatus(db.getEquipmentChecklistID(equipmentID));
+        //db.clearCheckedStatus(db.getEquipmentChecklistID(equipmentID));
+        db.clearCheckedStatus(equipmentID); // pass in equipmentID instead
         db.clearNextInspection(equipmentID);
         view.displayLastInspection(SimpleDateFormat.getDateInstance().format(new Date()));
         view.displayChecklistItems(checklistItems);
@@ -94,29 +93,48 @@ public class PresenterChecklistView implements ChecklistViewPresenter {
         checklist.setLastInspection(lastInspection);
         checklist.setNextInspection(nextInspection);
 
-        // INSERT
-        db.updateLastInspection(equipmentID, lastInspection);
-        db.updateNextInspection(equipmentID, nextInspection);
-        db.updateIsChecked(checklistID, checklist);
-
         if(isGoodToGo(checkboxes)) {
             checklist.setStatus(GOOD_TO_GO);
             db.updateEquipmentStatus(equipmentID, GOOD_TO_GO);
+            db.updateNextInspection(equipmentID, nextInspection);
+            view.displayStatus(GOOD_TO_GO);
+            view.displayNextInspection(nextInspection);
         } else {
             checklist.setStatus(DO_NOT_USE);
             db.updateEquipmentStatus(equipmentID, DO_NOT_USE);
+            // Since the inspection has failed, the next inspection day will be tomorrow
+            calendar.setTime(new Date());
+            calendar.add(Calendar.DATE, 1);
+            nextInspection = SimpleDateFormat.getDateInstance().format(calendar.getTime());
+            checklist.setNextInspection(nextInspection);
+            db.updateNextInspection(equipmentID, nextInspection);
+            view.displayStatus(DO_NOT_USE);
+            view.displayNextInspection(nextInspection);
         }
 
+        db.updateLastInspection(equipmentID, lastInspection);
+        db.updateIsChecked(checklistID, checklist);
+
+        for(ChecklistItem item : checkboxes) {
+            item.setIsEnabled(false);
+        }
+
+        view.displayChecklistItems(checkboxes);
+
+        // Do this on a new thread
         String status = serverConnect.submitChecklist(checklist);
 
         if(status.equals("complete")) {
-            Toast.makeText(context, "Saved at server. Rescan tag to verify results", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Checklist saved!", Toast.LENGTH_LONG).show();
         } else {
-            Toast.makeText(context, "Could not sync to server...", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Could not contact server, checklist saved locally", Toast.LENGTH_LONG).show();
             Log.d("PCV Submit ERROR: ", status);
         }
 
         view.disableButtons();
+        view.displayLastInspection(lastInspection);
+
+
     }
 
     private boolean isGoodToGo(List<ChecklistItem> checkboxes) {

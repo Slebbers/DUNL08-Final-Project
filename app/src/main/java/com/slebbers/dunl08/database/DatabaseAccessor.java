@@ -22,38 +22,38 @@ public class DatabaseAccessor {
     private ChecklistDataDbHelper dbHelper;
     private SQLiteDatabase db;
 
-    private final String EMPTY_STRING = "";
-    private final String GOOD_TO_GO = "Good To Go";
-    private final String DO_NOT_USE = "Do Not Use";
-
     public DatabaseAccessor(Context context) {
         dbHelper = new ChecklistDataDbHelper(context);
         db = dbHelper.getWritableDatabase();
     }
 
-    public void addChecklistAndEquipment(String checklistID, String equipmentID, String equipmentType) {
-        String checklistInsert = "INSERT INTO Checklist(ChecklistID, EquipmentID) " +
-                "VALUES(" + checklistID + ", " + equipmentID + ")";
-        String equipmentInsert = "INSERT INTO Equipment(EquipmentID, EquipmentType, ChecklistID) " +
+    public void addEquipment(String checklistID, String equipmentID, String equipmentType) {
+        String equipmentInsert = "INSERT INTO Equipment(EquipmentID, EquipmentName, ChecklistID) " +
                 "VALUES(" + equipmentID + ", '" + equipmentType + "', " + checklistID + ")";
-
-        db.execSQL(checklistInsert);
         db.execSQL(equipmentInsert);
     }
 
-    public void insertChecklistItems(String checklistID, List<ChecklistItem> checklistItems) {
-        String insertQuery = "INSERT INTO ChecklistItem(ChecklistItem, IsChecked, ChecklistID) VALUES('";
+    public void insertEquipmentItem(String equipmentID, List<ChecklistItem> checklistItems) {
+        String insertEquipmentItem = "INSERT INTO EquipmentItem(EquipmentID, ChecklistItemID, IsChecked) VALUES (";
 
         for(ChecklistItem checklistItem : checklistItems) {
-            String fullQuery = insertQuery + checklistItem.getChecklistItem() + "', '"
-                    + checklistItem.getIsChecked() + "', " + checklistID + ")";
+            String fullQuery = insertEquipmentItem + equipmentID + ", " + checklistItem.getChecklistItemID() + ", " + checklistItem.getIsChecked() + ")";
+            db.execSQL(fullQuery);
+        }
+
+    }
+
+    public void insertChecklistItems(String checklistID, List<ChecklistItem> checklistItems) {
+        String insertQuery = "INSERT INTO ChecklistItem(ChecklistItemID, ChecklistItem, ChecklistID) VALUES(";
+
+        for(ChecklistItem checklistItem : checklistItems) {
+            String fullQuery = insertQuery + checklistItem.getChecklistItemID() + ", '" +checklistItem.getChecklistItem() + "', " + checklistID + ")";
             db.execSQL(fullQuery);
         }
     }
 
-
     public boolean clearCheckedStatus(String checklistID) {
-        String clearCheckedStatusQuery = "UPDATE ChecklistItem SET IsChecked = 0 WHERE ChecklistID = " + checklistID;
+        String clearCheckedStatusQuery = "UPDATE EquipmentItem SET IsChecked = 0 WHERE EquipmentID = " + checklistID;
         Cursor clearCheckedStatusCursor = db.rawQuery(clearCheckedStatusQuery, null);
 
         if(clearCheckedStatusCursor.moveToFirst()) {
@@ -80,7 +80,7 @@ public class DatabaseAccessor {
 
     public boolean checkEquipmentExists(String equipmentID) {
         // If the supplied equipmentID is not an integer, it will cause an SQLiteException due
-        // missing quotes around the number
+        // missing quotes around the number in the query
         try {
             Integer.parseInt(equipmentID);
         } catch (NumberFormatException e) {
@@ -99,17 +99,24 @@ public class DatabaseAccessor {
         }
     }
 
-    // Returns a HashMap containing the checklist item as the key, as the checked status as the value
+    // REDO
     public List<ChecklistItem> getChecklistItems(String equipmentID) {
         List<ChecklistItem> checklistItems = new ArrayList<>();
         ChecklistItem item;
-        String checklistItemsQuery = "SELECT ChecklistItem, IsChecked FROM ChecklistItem WHERE ChecklistID = (SELECT ChecklistID FROM Equipment WHERE EquipmentID = " + equipmentID + ")";
+        String checklistItemsQuery = "SELECT ChecklistItemID, ChecklistItem FROM ChecklistItem WHERE ChecklistID = (SELECT ChecklistID FROM Equipment WHERE EquipmentID = " + equipmentID + ")";
         Cursor checklistItemsCursor = db.rawQuery(checklistItemsQuery, null);
 
         while (checklistItemsCursor.moveToNext()) {
             item = new ChecklistItem();
-            item.setChecklistItem(checklistItemsCursor.getString(checklistItemsCursor.getColumnIndex(ChecklistDataContract.ChecklistItemEntry.COLUMN_CHECKLISTITEM)));
-            item.setIsChecked(Integer.toString(checklistItemsCursor.getInt(checklistItemsCursor.getColumnIndex(ChecklistDataContract.ChecklistItemEntry.COLUMN_ISCHECKED))));
+            item.setChecklistItemID(checklistItemsCursor.getString(checklistItemsCursor.getColumnIndex("ChecklistItemID")));
+            item.setChecklistItem(checklistItemsCursor.getString(checklistItemsCursor.getColumnIndex("ChecklistItem")));
+            String checklistItemID = checklistItemsCursor.getString(checklistItemsCursor.getColumnIndex("ChecklistItemID"));
+            Cursor isCheckedCursor = db.rawQuery("SELECT IsChecked FROM EquipmentItem WHERE ChecklistItemID = " + checklistItemID, null);
+            if(isCheckedCursor.moveToFirst()) {
+                item.setIsChecked(Integer.toString(isCheckedCursor.getInt(isCheckedCursor.getColumnIndex("IsChecked"))));
+            }
+
+            isCheckedCursor.close();
             checklistItems.add(item);
         }
 
@@ -160,16 +167,14 @@ public class DatabaseAccessor {
     }
 
     public boolean updateIsChecked(String checklistID, Checklist checklist) {
-        String partialQuery = "UPDATE ChecklistItem SET IsChecked = ";
+        String partialQuery = "UPDATE EquipmentItem SET IsChecked = ";
         Cursor isCheckedCursor;
 
         for(int i = 0; i < checklist.getChecklistItems().size(); i++) {
             ChecklistItem item = checklist.getChecklistItems().get(i);
 
             String updateIsCheckedQuery = partialQuery + item.getIsChecked() +
-                    " WHERE ChecklistID = " + checklistID +
-                    " AND ChecklistItem = " +
-                    "'" + item.getChecklistItem() + "'" ;
+                    " WHERE ChecklistItemID = " + item.getChecklistItemID();
 
             isCheckedCursor = db.rawQuery(updateIsCheckedQuery, null);
 
@@ -236,16 +241,16 @@ public class DatabaseAccessor {
         }
     }
 
-    public String getEquipmentType(String equipmentID) {
-        String getEquipmentTypeQuery = "SELECT EquipmentType FROM Equipment WHERE EquipmentID = " + equipmentID;
-        Cursor getEquipmentTypeCursor = db.rawQuery(getEquipmentTypeQuery, null);
+    public String getEquipmentName(String equipmentID) {
+        String getEquipmentNameQuery = "SELECT EquipmentName FROM Equipment WHERE EquipmentID = " + equipmentID;
+        Cursor getEquipmentNameCursor = db.rawQuery(getEquipmentNameQuery, null);
 
-        if(getEquipmentTypeCursor.moveToNext()) {
-            String equipmentType = getEquipmentTypeCursor.getString(getEquipmentTypeCursor.getColumnIndex("EquipmentType"));
-            getEquipmentTypeCursor.close();
+        if(getEquipmentNameCursor.moveToNext()) {
+            String equipmentType = getEquipmentNameCursor.getString(getEquipmentNameCursor.getColumnIndex("EquipmentName"));
+            getEquipmentNameCursor.close();
             return equipmentType;
         } else {
-            getEquipmentTypeCursor.close();
+            getEquipmentNameCursor.close();
             return null;
         }
     }
@@ -258,7 +263,7 @@ public class DatabaseAccessor {
 
         while(equipmentCursor.moveToNext()) {
             checklist = new Checklist();
-            checklist.setEquipmentType(equipmentCursor.getString(equipmentCursor.getColumnIndex("EquipmentType")));
+            checklist.setEquipmentName(equipmentCursor.getString(equipmentCursor.getColumnIndex("EquipmentName")));
             checklist.setLastInspection(equipmentCursor.getString(equipmentCursor.getColumnIndex("LastInspection")));
             checklist.setNextInspection(equipmentCursor.getString(equipmentCursor.getColumnIndex("NextInspection")));
             checklist.setStatus(equipmentCursor.getString(equipmentCursor.getColumnIndex("Status")));

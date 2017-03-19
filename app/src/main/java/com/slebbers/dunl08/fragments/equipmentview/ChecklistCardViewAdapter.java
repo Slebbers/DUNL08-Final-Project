@@ -1,8 +1,7 @@
-package com.slebbers.dunl08.adapters;
+package com.slebbers.dunl08.fragments.equipmentview;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.slebbers.dunl08.R;
-import com.slebbers.dunl08.activities.WriteTagActivity;
+import com.slebbers.dunl08.activities.writetag.WriteTagActivity;
 import com.slebbers.dunl08.model.Checklist;
 
 import java.util.List;
@@ -45,7 +44,7 @@ public class ChecklistCardViewAdapter extends RecyclerView.Adapter<ChecklistCard
                     // Launch our activity to write the tag
                     Intent intent = new Intent(view.getContext(), WriteTagActivity.class);
                     intent.putExtra("EquipmentID", currentChecklist.getEquipmentID());
-                    intent.putExtra("EquipmentType", currentChecklist.getEquipmentType());
+                    intent.putExtra("EquipmentName", currentChecklist.getEquipmentName());
                     view.getContext().startActivity(intent);
                 }
             });
@@ -65,22 +64,22 @@ public class ChecklistCardViewAdapter extends RecyclerView.Adapter<ChecklistCard
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.currentChecklist = checklists.get(position);
-        holder.tvEquipmentType.setText(checklists.get(position).getEquipmentType());
+        holder.tvEquipmentType.setText(checklists.get(position).getEquipmentName());
 
         // Null database cursors set string values to "null" ...
-        if(checklists.get(position).getLastInspection() == null) {
+        if(checklists.get(position).getLastInspection().equals("null")) {
             holder.tvLastInspection.setText("Not Set");
         } else {
             holder.tvLastInspection.setText(checklists.get(position).getLastInspection());
         }
 
-        if(checklists.get(position).getNextInspection() == null) {
+        if(checklists.get(position).getNextInspection().equals("null")) {
             holder.tvNextInspection.setText("Not Set");
         } else {
             holder.tvNextInspection.setText(checklists.get(position).getNextInspection());
         }
 
-        if(checklists.get(position).getStatus() == null) {
+        if(checklists.get(position).getStatus().equals("null")) {
             holder.tvStatus.setText("Not Set");
         } else {
             holder.tvStatus.setText(checklists.get(position).getStatus());

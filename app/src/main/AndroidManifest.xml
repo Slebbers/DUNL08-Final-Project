@@ -12,16 +12,17 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity
-            android:name=".activities.MainActivity"
+            android:name=".activities.main.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!-- For now, only look for plain text -->
+
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
 
@@ -31,13 +32,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.WriteTagActivity"
+            android:name=".activities.writetag.WriteTagActivity"
             android:label="@string/title_activity_write_tag"
-            android:parentActivityName=".activities.MainActivity"
+            android:parentActivityName=".activities.main.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.slebbers.dunl08.activities.MainActivity" />
+                android:value="com.slebbers.dunl08.activities.main.MainActivity" />
         </activity>
     </application>
 

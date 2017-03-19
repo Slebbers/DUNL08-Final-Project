@@ -7,7 +7,7 @@ public class Checklist {
 
     private String ChecklistID;
     private String EquipmentID;
-    private String EquipmentType;
+    private String EquipmentName;
     private String LastInspection;
     private String NextInspection;
     private String Status;
@@ -33,12 +33,12 @@ public class Checklist {
         EquipmentID = equipmentID;
     }
 
-    public String getEquipmentType() {
-        return EquipmentType;
+    public String getEquipmentName() {
+        return EquipmentName;
     }
 
-    public void setEquipmentType(String equipmentType) {
-        EquipmentType = equipmentType;
+    public void setEquipmentName(String equipmentName) {
+        EquipmentName = equipmentName;
     }
 
     public String getLastInspection() {
