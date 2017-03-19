@@ -34,7 +34,7 @@ import com.slebbers.dunl08.fragments.equipmentview.FragmentViewChecklists;
 
 public class MainActivity extends AppCompatActivity implements MainView, NavigationView.OnNavigationItemSelectedListener {
 
-    private PresenterMain mainPresenter;
+    private Presenter mainPresenter;
     private FragmentTransaction fragmentTransaction;
     private FragmentManager fragmentManager;
     private FragmentChecklistView fragmentChecklistView;
