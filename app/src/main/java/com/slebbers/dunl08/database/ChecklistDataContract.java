@@ -2,7 +2,9 @@ package com.slebbers.dunl08.database;
 
 import android.provider.BaseColumns;
 
-
+/**
+ * Defines the contract for the tables to be created by the DbHelper class
+ */
 public final class ChecklistDataContract {
 
     private ChecklistDataContract() {}
@@ -37,5 +39,4 @@ public final class ChecklistDataContract {
         public static final String COLUMN_CHECKLISTITEM_ID_FK = "ChecklistItemID";
         public static final String COLUMN_ISCHECKED = "IsChecked";
     }
-
 }

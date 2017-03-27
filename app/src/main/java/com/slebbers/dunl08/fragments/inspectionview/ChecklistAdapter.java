@@ -14,11 +14,17 @@ import com.slebbers.dunl08.model.ChecklistItem;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Adapter class that is used to display checklists in a RecyclerView
+ */
 public class ChecklistAdapter extends RecyclerView.Adapter<ChecklistAdapter.ViewHolder> {
 
     private List<CheckBox> checkboxes;
     private List<ChecklistItem> checklistItems;
 
+    /**
+     * Custom ViewHolder to display each ChecklistItem with a Checkbox
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         CheckBox checkbox;
 
@@ -28,6 +34,10 @@ public class ChecklistAdapter extends RecyclerView.Adapter<ChecklistAdapter.View
         }
     }
 
+    /**
+     * Constructs a new ChecklistAdapter
+     * @param checklistItems Items to be displayed within the Checklist
+     */
     public ChecklistAdapter(List<ChecklistItem> checklistItems) {
         this.checklistItems = checklistItems;
         checkboxes = new ArrayList<>();
@@ -66,7 +76,7 @@ public class ChecklistAdapter extends RecyclerView.Adapter<ChecklistAdapter.View
         if(!checkboxes.contains(holder.checkbox))
             checkboxes.add(holder.checkbox);
 
-        // If our recyclerview scrolls, we need to be able to save is the checkbox was checked or not.
+        // If our recyclerview scrolls, we need to be able to save if the checkbox was checked or not.
         holder.checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {

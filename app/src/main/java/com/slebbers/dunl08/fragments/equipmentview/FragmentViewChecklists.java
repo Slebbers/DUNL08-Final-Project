@@ -16,6 +16,9 @@ import com.slebbers.dunl08.model.Checklist;
 
 import java.util.List;
 
+/**
+ * The Fragment that contains CardData in the View Inspection Details view.
+ */
 public class FragmentViewChecklists extends Fragment {
 
     private RecyclerView rvChecklists;

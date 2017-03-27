@@ -7,23 +7,10 @@ import android.provider.BaseColumns;
 
 import com.slebbers.dunl08.database.ChecklistDataContract.*;
 
-/*    Checklist
-*     (PK) ChecklistID int
-*
-*     Checklist (Many)->  ChecklistItem
-*     (PK) ChecklistItemID integer
-*     (FK) ChecklistID integer
-*          ChecklistItem text
-*
-*     Equipment -> Checklist
-*     (PK) EquipmentID integer
-*     (FK) ChecklistID integer
-*          LastInspection date
-*          NextInspection date
-*          Status text
-*
- */
 
+/**
+ * Helper class to construct the database from the defined ChecklistDataContract
+ */
 public class ChecklistDataDbHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "Checklist.db";
@@ -66,11 +53,19 @@ public class ChecklistDataDbHelper extends SQLiteOpenHelper {
             "REFERENCES " + ChecklistItemEntry.COLUMN_CHECKLIST_ID_FK + "(" + EquipmentItemEntry.COLUMN_CHECKLISTITEM_ID_FK + "))";
 
 
+    /**
+     * Constructs a new SQLite database and fires the onCreate Method
+     * @param context Android context
+     */
     public ChecklistDataDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
 
+    /**
+     * Constructs the database when the helper class is constructed
+     * @param sqLiteDatabase The application database
+     */
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(SQL_CREATE_TABLE_CHECKLIST);
@@ -79,6 +74,13 @@ public class ChecklistDataDbHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(SQL_CREATE_TABLE_EQUIPMENTITEM);
     }
 
+    /**
+     * Method that is executed when there needs to be schema changes made to the database.
+     * Currently unused but needed from SQLiteOpenHelper
+     * @param sqLiteDatabase The database to be updated
+     * @param i Starting index
+     * @param i1 Ending index
+     */
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
 

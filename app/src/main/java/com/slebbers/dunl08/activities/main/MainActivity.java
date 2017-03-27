@@ -1,9 +1,12 @@
 package com.slebbers.dunl08.activities.main;
 
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -32,8 +35,12 @@ import com.slebbers.dunl08.database.DatabaseAccessor;
 import com.slebbers.dunl08.fragments.inspectionview.FragmentChecklistView;
 import com.slebbers.dunl08.fragments.equipmentview.FragmentViewChecklists;
 
+/**
+ * The starting Activity of the application
+ */
 public class MainActivity extends AppCompatActivity implements MainView, NavigationView.OnNavigationItemSelectedListener {
 
+    // Presenter and view elements
     private Presenter mainPresenter;
     private FragmentTransaction fragmentTransaction;
     private FragmentManager fragmentManager;
@@ -44,13 +51,17 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
     private SharedPreferences sharedPrefs;
     private DrawerLayout drawer;
 
-    // NFC
+    // Variables necessary for NFC functionality
     private NfcAdapter nfcAdapter;
     private PendingIntent pendingIntent;
     private IntentFilter ndef;
     private IntentFilter[] intents;
     private String[][] technologies;
 
+    /**
+     * Application launching point. Constructs necessary view elements and sets up NFC
+     * @param savedInstanceState Application state handled by the Android framework.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,9 +99,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
 
         fragmentManager = getSupportFragmentManager();
         sharedPrefs = getSharedPreferences("com.slebbers.dunl08", MODE_PRIVATE);
-        // REMOVE EVENTUALLY !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-       // sharedPrefs.edit().putBoolean("initialLaunch", true).apply();
 
         if (mainPresenter == null)
             mainPresenter = new PresenterMain(this, new DatabaseAccessor(getApplicationContext()));
@@ -98,6 +106,9 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         mainPresenter.onCreate();
     }
 
+    /**
+     * Method is invoked when the back button is pressed by the user
+     */
     @Override
     public void onBackPressed() {
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -107,6 +118,9 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         }
     }
 
+    /**
+     * The onPause part of the Activity lifecycle
+     */
     @Override
     protected void onPause() {
         super.onPause();
@@ -116,6 +130,9 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
             nfcAdapter.disableForegroundDispatch(this);
     }
 
+    /**
+     * The onResume part of the Activity lifecycle
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -131,23 +148,50 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
             nfcAdapter.enableForegroundDispatch(this, pendingIntent, intents, technologies);
     }
 
+    /**
+     * Method that is invoked by the Android framework to create the options menu
+     * @param menu the menu to create
+     * @return true when inflated
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
+    /**
+     * Method that is invoked when the user selects an item in the options menu
+     * @param item The option selected by teh user
+     * @return True upon selection
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        mainPresenter.onOptionsItemSelected(item.getItemId());
+        if(isNetworkConnected()) {
+            mainPresenter.onOptionsItemSelected(item.getItemId());
+        } else {
+            displayMessage("Networking is not available at the moment, please try again when available.");
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Checks to see if the device is connected to a network
+     * @return {@code True if connected } or {@code False if no network is available/}
+     */
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnectedOrConnecting();
+    }
+
+    /**
+     * Method that is invoked when the Activity receives a new intent.
+     * @param intent Intent that is received
+     */
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        // TODO: fix this not being removed by the fragment replace.
-        // sorta fixed for now, some weird case were it stays visible
         tvScanTag.setVisibility(View.GONE);
 
         Parcelable[] parcelables = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
@@ -156,6 +200,11 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         mainPresenter.onTagScanned(record);
     }
 
+    /**
+     * Invoked when the user selects an item within the navigation drawer
+     * @param item The item selected
+     * @return {@code True when complete}
+     */
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
@@ -191,11 +240,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
     @Override
     public void equipmentNotFound() {
         Toast.makeText(this, "Equipment does not exist in database.", Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void disableButtons() {
-
     }
 
     @Override

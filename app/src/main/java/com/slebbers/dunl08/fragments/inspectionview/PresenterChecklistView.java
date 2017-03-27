@@ -5,8 +5,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.slebbers.dunl08.database.DatabaseAccessor;
-import com.slebbers.dunl08.fragments.inspectionview.ChecklistView;
-import com.slebbers.dunl08.fragments.inspectionview.ChecklistViewPresenter;
 import com.slebbers.dunl08.model.Checklist;
 import com.slebbers.dunl08.model.ChecklistItem;
 import com.slebbers.dunl08.network.ServerConnect;
@@ -16,18 +14,27 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Presenter class for the ChecklistView. Processes interactions and deals with
+ * database retrieval
+ */
 public class PresenterChecklistView implements ChecklistViewPresenter {
 
     private DatabaseAccessor db;
     private ServerConnect serverConnect;
     private ChecklistView view;
     private String equipmentID;
-    private String checklistID;
     private Context context;
 
+    // Safety phrases
     private final String GOOD_TO_GO = "Good To Go";
     private final String DO_NOT_USE = "Do Not Use";
 
+    /**
+     * Constructs a new Instance of PresenterChecklistView
+     * @param context The current Android context
+     * @param view The view of the current checklist
+     */
     public PresenterChecklistView(Context context, ChecklistView view) {
         db = new DatabaseAccessor(context);
         this.view = view;
@@ -72,7 +79,7 @@ public class PresenterChecklistView implements ChecklistViewPresenter {
     }
 
     @Override
-    public void btnSubmitClick() {
+    public void btnSubmitClick(boolean isNetworkAvailable) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.add(Calendar.MONTH, 1);
@@ -113,7 +120,7 @@ public class PresenterChecklistView implements ChecklistViewPresenter {
         }
 
         db.updateLastInspection(equipmentID, lastInspection);
-        db.updateIsChecked(checklistID, checklist);
+        db.updateIsChecked(checklist);
 
         for(ChecklistItem item : checkboxes) {
             item.setIsEnabled(false);
@@ -121,22 +128,28 @@ public class PresenterChecklistView implements ChecklistViewPresenter {
 
         view.displayChecklistItems(checkboxes);
 
-        // Do this on a new thread
-        String status = serverConnect.submitChecklist(checklist);
+        if(isNetworkAvailable) {
+            String status = serverConnect.submitChecklist(checklist);
 
-        if(status.equals("complete")) {
-            Toast.makeText(context, "Checklist saved!", Toast.LENGTH_LONG).show();
+            if(status.equals("complete")) {
+                view.displayMessage("Checklist saved locally and at server!");
+            } else {
+                view.displayMessage("Error occured at server, checklist saved locally");
+                Log.d("PCV Submit ERROR: ", status);
+            }
         } else {
-            Toast.makeText(context, "Could not contact server, checklist saved locally", Toast.LENGTH_LONG).show();
-            Log.d("PCV Submit ERROR: ", status);
+            view.displayMessage("No network is available, data is saved locally.");
         }
 
         view.disableButtons();
         view.displayLastInspection(lastInspection);
-
-
     }
 
+    /**
+     * Decides if a Checklist is Good to Go or not
+     * @param checkboxes Items within the checklist
+     * @return {@code True if all items are checked} or {@code False if item is unchecked}
+     */
     private boolean isGoodToGo(List<ChecklistItem> checkboxes) {
         int numChecked = 0;
 

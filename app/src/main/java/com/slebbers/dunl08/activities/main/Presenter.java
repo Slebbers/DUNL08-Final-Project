@@ -3,18 +3,38 @@ package com.slebbers.dunl08.activities.main;
 import android.nfc.NdefRecord;
 
 /**
- * Created by Paul on 27/01/2017.
+ *  Interface for the Presenter for the MainView.
  */
 
 public interface Presenter {
+    /**
+     * Represents the onCreate part of the Activity lifecycle
+     */
     void onCreate();
+    /**
+     * Represents the onPause part of the Activity lifecycle
+     */
     void onPause();
+    /**
+     * Represents the onResume part of the Activity lifecycle
+     */
     void onResume();
+    /**
+     * Represents the onDestroy part of the Activity lifecycle
+     */
     void onDestroy();
-    void setupNFC();
+    /**
+     * Processes the record from the scanned NFC tag
+     * @param record The record recieved from the tag
+     */
     void onTagScanned(NdefRecord record);
-    void onCheckboxClicked();
-    void onSaveClicked();
+    /**
+     * Handles user interaction with the Options Menu
+     * @param id The element selected
+     */
     void onOptionsItemSelected(int id);
+    /**
+     * Handles the applications initial startup
+     */
     void firstLaunch();
 }

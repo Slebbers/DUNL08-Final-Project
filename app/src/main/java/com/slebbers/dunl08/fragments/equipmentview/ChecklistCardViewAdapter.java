@@ -14,15 +14,19 @@ import com.slebbers.dunl08.model.Checklist;
 
 import java.util.List;
 
-
+/**
+ * Adapter class that deals with constructing cards within a RecyclerView
+ */
 public class ChecklistCardViewAdapter extends RecyclerView.Adapter<ChecklistCardViewAdapter.ViewHolder> {
 
     private List<Checklist> checklists;
     private String GOOD_TO_GO = "Good To Go";
     private String DO_NOT_USE = "Do Not Use";
 
+    /**
+     * Custom ViewHolder object that will store an individual card
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
-
         View view;
         TextView tvEquipmentType;
         TextView tvLastInspection;
@@ -51,9 +55,14 @@ public class ChecklistCardViewAdapter extends RecyclerView.Adapter<ChecklistCard
         }
     }
 
+    /**
+     * Constructs a new ChecklistCardViewAdapter
+     * @param checklists Checklists to be displayed as cards
+     */
     public ChecklistCardViewAdapter(List<Checklist> checklists) {
         this.checklists = checklists;
     }
+
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

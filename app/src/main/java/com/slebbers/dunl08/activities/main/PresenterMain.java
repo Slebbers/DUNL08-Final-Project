@@ -12,11 +12,17 @@ import com.slebbers.dunl08.model.Checklist;
 import com.slebbers.dunl08.network.ServerConnect;
 import com.slebbers.dunl08.nfc.NFCHelper;
 
+import org.json.JSONArray;
+
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementation of Presenter. Handles the processing and interactions within
+ * the MainView.
+ */
 public class PresenterMain implements Presenter {
 
     private MainView view;
@@ -54,9 +60,15 @@ public class PresenterMain implements Presenter {
     @Override
     public void firstLaunch() {
         toggleViews();
-        syncDatabase();
-        Handler delay = new Handler();
 
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                checkDatabase(connection.getServerDatabaseJSON());
+            }
+        }).start();
+
+        Handler delay = new Handler();
         // Added some delay here so it is apparent to the user that the database is being synced.
         // As we are only downloading < 100Kb of JSON text from the server this will be finished
         // very quickly in most cases.
@@ -76,25 +88,23 @@ public class PresenterMain implements Presenter {
         }, 5000);
     }
 
+    /**
+     * Toggles the visibility of MainView elements
+     */
     private void toggleViews() {
         view.toggleScanTagVisibility();
         view.toggleSyncVisibility();
         view.toggleProgressBarVisibility();
     }
 
-    private void syncDatabase() {
-        Log.d("JSON", connection.getServerDatabaseJSON());
-        checkDatabase(connection.getServerDatabaseJSON());
-    }
-
     @Override
     public void onOptionsItemSelected(int id) {
         switch(id) {
-         //   case R.id.action_settings:
-          //      break;
             case R.id.action_connect:
-                // fancy popupmennu would be nice
+                // first we must submit the checklist data we have locally, incase it was not submitted during
+                // network failure
                 view.displayMessage("Connecting to server...");
+                connection.submitLocalData(db.getLocalDataForServer());
                 checkDatabase(connection.getServerDatabaseJSON());
                 view.displayMessage("Sync complete.");
             default:
@@ -102,6 +112,10 @@ public class PresenterMain implements Presenter {
         }
     }
 
+    /**
+     * Checks the database for equipment entries and adds them if they do not exist
+     * @param serverJSON The JSON returned from the server
+     */
     private void checkDatabase(String serverJSON)  {
         Type listType = new TypeToken<ArrayList<Checklist>>(){}.getType();
         List<Checklist> checklists = new Gson().fromJson(serverJSON, listType);
@@ -125,11 +139,6 @@ public class PresenterMain implements Presenter {
     }
 
     @Override
-    public void setupNFC() {
-
-    }
-
-    @Override
     public void onTagScanned(NdefRecord record) {
         view.toggleScanTagVisibility();
 
@@ -146,15 +155,5 @@ public class PresenterMain implements Presenter {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void onCheckboxClicked() {
-
-    }
-
-    @Override
-    public void onSaveClicked() {
-
     }
 }

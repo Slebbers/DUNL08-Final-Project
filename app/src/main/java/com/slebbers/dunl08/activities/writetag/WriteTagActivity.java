@@ -17,17 +17,27 @@ import android.widget.TextView;
 import com.slebbers.dunl08.R;
 import com.slebbers.dunl08.nfc.NFCHelper;
 
+/**
+ * Activity for Writing equipment IDs to NFC Tags
+ */
 public class WriteTagActivity extends AppCompatActivity {
 
+    // NFC functionality
     private NfcAdapter nfcAdapter;
     private PendingIntent pendingIntent;
     private String tagWriteableName;
-    private AlertDialog writeTagDialog;
     private NFCHelper nfcHelper;
+
+    // View elements
+    private AlertDialog writeTagDialog;
     private TextView tvEquipmentID;
     private TextView tvEquipmentType;
     private Button btnWrite;
 
+    /**
+     * onCreate part of the Activity lifecycle
+     * @param savedInstanceState Application state handled by the Android framework
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,8 +71,10 @@ public class WriteTagActivity extends AppCompatActivity {
         });
     }
 
-
-
+    /**
+     * Method invoked by the Android framework when the Activity receives a new Intent
+     * @param intent The intent received
+     */
     @Override
     protected void onNewIntent(Intent intent) {
         Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
@@ -72,6 +84,9 @@ public class WriteTagActivity extends AppCompatActivity {
         writeTagDialog.setMessage("Tag successfully written!");
     }
 
+    /**
+     * onResume part of the Activity lifecycle.
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -80,6 +95,9 @@ public class WriteTagActivity extends AppCompatActivity {
         nfcAdapter.enableForegroundDispatch(this, pendingIntent, writeTagFilters, null);
     }
 
+    /**
+     * onPause part of the Activity lifecycle.
+     */
     @Override
     protected void onPause() {
         nfcAdapter.disableForegroundDispatch(this);

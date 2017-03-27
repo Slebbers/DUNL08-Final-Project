@@ -1,6 +1,9 @@
 package com.slebbers.dunl08.fragments.inspectionview;
 
+import android.content.Context;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -19,8 +22,12 @@ import com.slebbers.dunl08.model.ChecklistItem;
 
 import java.util.List;
 
+/**
+ * This fragment is used to display Checklist data on screen.
+ */
 public class FragmentChecklistView extends Fragment implements ChecklistView {
 
+    // View Elements
     private TextView tvEquipmentType;
     private TextView tvLastInspection;
     private TextView tvNextInspection;
@@ -30,8 +37,9 @@ public class FragmentChecklistView extends Fragment implements ChecklistView {
     private RecyclerView rvChecklist;
     private RecyclerView.LayoutManager layoutManager;
     private ChecklistAdapter checklistAdapter;
-    private PresenterChecklistView presenter;
+    private ChecklistViewPresenter presenter;
 
+    // Safety phrases
     private final String GOOD_TO_GO = "Good To Go";
     private final String DO_NOT_USE = "Do Not Use";
 
@@ -44,6 +52,7 @@ public class FragmentChecklistView extends Fragment implements ChecklistView {
         tvNextInspection = (TextView) view.findViewById(R.id.tvNextInspection);
         tvStatus = (TextView) view.findViewById(R.id.tvStatus);
         btnSubmit = (Button) view.findViewById(R.id.btnSubmit);
+        btnSubmit.setEnabled(false);
         btnReinspect = (Button) view.findViewById(R.id.btnReinspect);
         rvChecklist = (RecyclerView) view.findViewById(R.id.rvChecklist);
         presenter = new PresenterChecklistView(getContext(), this);
@@ -69,12 +78,19 @@ public class FragmentChecklistView extends Fragment implements ChecklistView {
             @Override
             public void onClick(View view) {
                 btnSubmit.setEnabled(false);
-                Toast.makeText(getContext(), "Checklist saved, saving to server...", Toast.LENGTH_SHORT).show();
-                presenter.btnSubmitClick();
-
-                //TODO: make checklistitems disabled again
+                presenter.btnSubmitClick(isNetworkConnected());
             }
         });
+    }
+
+    /**
+     * Checks to see if the device is connected to a network
+     * @return {@code True if connected } or {@code False if no network is available/}
+     */
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnectedOrConnecting();
     }
 
     @Override
@@ -149,5 +165,10 @@ public class FragmentChecklistView extends Fragment implements ChecklistView {
         presenter.setEquipmentID(equipmentID);
         presenter.onStart();
         btnReinspect.setEnabled(true);
+    }
+
+    @Override
+    public void displayMessage(String message) {
+        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
 }
